@@ -1,0 +1,1754 @@
+/* =============================================================================
+   style.css — W.H. Rodenhuis
+   Aardse & gedempte kleurenpallet: olijfgroen, terracotta, linnen, inkt.
+   Lettertypen: Cormorant Garamond (serif, koppen) + Jost (sans, body).
+============================================================================= */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   1. DESIGN TOKENS
+───────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Kleuren */
+  --linen:       #F5F0E8;
+  --linen-dark:  #EDE5D5;
+  --canvas:      #FAF7F2;
+  --olive:       #5C6440;
+  --olive-lt:    #7A8558;
+  --olive-dk:    #3E4529;
+  --terra:       #A0522D;
+  --terra-lt:    #C4713F;
+  --terra-dk:    #7A3D1F;
+  --ink:         #1E1A14;
+  --ink-mid:     #3D3629;
+  --muted:       #7A7060;
+  --border:      rgba(92, 100, 64, 0.18);
+  --border-md:   rgba(92, 100, 64, 0.32);
+
+  /* Schaduw */
+  --shadow:      0 2px 24px rgba(30, 26, 20, 0.10);
+  --shadow-lg:   0 8px 48px rgba(30, 26, 20, 0.15);
+
+  /* Typografie */
+  --ff-serif:    'Cormorant Garamond', Georgia, serif;
+  --ff-sans:     'Jost', system-ui, sans-serif;
+
+  /* Radii */
+  --r:           4px;
+  --r-lg:        8px;
+
+  /* Transitie */
+  --trans:       0.28s ease;
+
+  /* Z-lagen */
+  --z-nav:       900;
+  --z-mobile:    800;
+  --z-search:    1100;
+  --z-overlay:   1299;
+  --z-cart:      1300;
+  --z-lightbox:  1200;
+  --z-admin:     2000;
+  --z-admin-modal: 2100;
+  --z-toast:     9999;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   2. RESET & BASIS
+───────────────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--ff-sans);
+  background: var(--canvas);
+  color: var(--ink);
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   3. TYPOGRAFIE
+───────────────────────────────────────────────────────────────────────────── */
+h1, h2, h3, h4 {
+  font-family: var(--ff-serif);
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+h1 { font-size: clamp(2.4rem, 5vw, 4rem); }
+h2 { font-size: clamp(1.8rem, 3vw, 2.8rem); }
+h3 { font-size: 1.4rem; }
+h4 { font-size: 1.1rem; }
+
+.serif { font-family: var(--ff-serif); }
+.muted { color: var(--muted); }
+.small {
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   4. LAYOUT HULPKLASSEN
+───────────────────────────────────────────────────────────────────────────── */
+.wrap {
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 3rem);
+}
+
+.section {
+  padding: clamp(3rem, 7vw, 6rem) 0;
+}
+
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 2rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   5. KNOPPEN
+───────────────────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.6rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--border-md);
+  border-radius: var(--r);
+  transition: all var(--trans);
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn:hover {
+  background: var(--olive);
+  color: var(--linen);
+  border-color: var(--olive);
+}
+
+.btn-solid {
+  background: var(--olive);
+  color: var(--linen);
+  border-color: var(--olive);
+}
+
+.btn-solid:hover {
+  background: var(--olive-dk);
+  border-color: var(--olive-dk);
+}
+
+.btn-terra {
+  background: var(--terra);
+  color: var(--linen);
+  border-color: var(--terra);
+}
+
+.btn-terra:hover {
+  background: var(--terra-dk);
+  border-color: var(--terra-dk);
+}
+
+.btn-sm {
+  padding: 0.45rem 1rem;
+  font-size: 0.75rem;
+}
+
+.btn-danger {
+  color: var(--terra);
+  border-color: var(--terra);
+}
+
+.btn-danger:hover {
+  background: var(--terra);
+  color: var(--linen);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   6. FORMULIERELEMENTEN
+───────────────────────────────────────────────────────────────────────────── */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border-md);
+  border-radius: var(--r);
+  background: var(--linen);
+  color: var(--ink);
+  outline: none;
+  font-size: 0.95rem;
+  transition: border-color var(--trans);
+}
+
+.form-control:focus {
+  border-color: var(--olive);
+}
+
+.form-control-sm {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.88rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.alert {
+  padding: 0.65rem 1rem;
+  border-radius: var(--r);
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+
+.alert-err {
+  background: #fde8e8;
+  color: #7a1f1f;
+  border: 1px solid #f0a0a0;
+}
+
+.alert-ok {
+  background: #e8f4ea;
+  color: #1f4a24;
+  border: 1px solid #a0d0a5;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   7. NAVIGATIE
+───────────────────────────────────────────────────────────────────────────── */
+#nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-nav);
+  background: rgba(250, 247, 242, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow var(--trans);
+}
+
+#nav.scrolled {
+  box-shadow: var(--shadow);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+  gap: 2rem;
+}
+
+.nav-brand {
+  font-family: var(--ff-serif);
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.nav-brand span {
+  color: var(--terra);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.nav-links a {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-radius: var(--r);
+  transition: all var(--trans);
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--ink);
+  background: var(--linen-dark);
+}
+
+.nav-links a.nav-admin {
+  color: var(--terra);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.lang-toggle {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all var(--trans);
+}
+
+.lang-toggle:hover {
+  background: var(--linen-dark);
+  color: var(--ink);
+}
+
+.cart-btn {
+  position: relative;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  transition: all var(--trans);
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.cart-btn:hover {
+  background: var(--linen-dark);
+  color: var(--ink);
+}
+
+.cart-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--terra);
+  color: #fff;
+  font-size: 0.65rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-count.visible {
+  display: flex;
+}
+
+.search-btn {
+  font-size: 1.05rem;
+  padding: 0.4rem 0.65rem;
+  color: var(--muted);
+  border-radius: var(--r);
+  transition: all var(--trans);
+}
+
+.search-btn:hover {
+  background: var(--linen-dark);
+  color: var(--ink);
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0.5rem;
+  border-radius: var(--r);
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: var(--ink);
+  transition: all var(--trans);
+}
+
+/* Mobile menu */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 68px;
+  left: 0;
+  right: 0;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem;
+  z-index: var(--z-mobile);
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.mobile-menu.open {
+  display: flex;
+}
+
+.mobile-menu a {
+  padding: 0.65rem 1rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-radius: var(--r);
+  transition: all var(--trans);
+}
+
+.mobile-menu a:hover {
+  background: var(--linen-dark);
+  color: var(--ink);
+}
+
+.mobile-menu a.nav-admin {
+  color: var(--terra);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   8. ZOEKOVERLAY
+───────────────────────────────────────────────────────────────────────────── */
+#search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-search);
+  background: rgba(30, 26, 20, 0.7);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 120px;
+}
+
+#search-overlay.open {
+  display: flex;
+}
+
+.search-box {
+  background: var(--canvas);
+  border-radius: var(--r-lg);
+  padding: 2rem;
+  width: min(640px, 92vw);
+  box-shadow: var(--shadow-lg);
+}
+
+.search-input-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.search-input-row input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-md);
+  border-radius: var(--r);
+  font-size: 1rem;
+  background: var(--linen);
+  color: var(--ink);
+  outline: none;
+  transition: border-color var(--trans);
+}
+
+.search-input-row input:focus {
+  border-color: var(--olive);
+}
+
+#search-results {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 0.75rem;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.search-result-item {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  background: var(--linen);
+  cursor: pointer;
+  transition: all var(--trans);
+}
+
+.search-result-item:hover {
+  border-color: var(--olive);
+  background: var(--linen-dark);
+}
+
+.search-result-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: var(--r);
+  flex-shrink: 0;
+  background: var(--linen-dark);
+}
+
+.search-result-info h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.15rem;
+}
+
+.search-result-info p {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   9. PAGINASYSTEEM
+───────────────────────────────────────────────────────────────────────────── */
+.page {
+  display: none;
+  padding-top: 68px;
+  min-height: 100vh;
+}
+
+.page.active {
+  display: block;
+}
+
+/* Home heeft geen top-padding omdat de hero het volledige scherm vult */
+#page-home {
+  padding-top: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   10. HERO
+───────────────────────────────────────────────────────────────────────────── */
+#hero {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding-top: 68px;
+  overflow: hidden;
+}
+
+.hero-text {
+  padding: clamp(2rem, 6vw, 5rem) clamp(1rem, 4vw, 3rem);
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 1.25rem;
+}
+
+.hero-text h1 {
+  margin-bottom: 1.25rem;
+  color: var(--ink);
+}
+
+.hero-text h1 em {
+  font-style: italic;
+  color: var(--terra);
+}
+
+.hero-text p {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 42ch;
+  margin-bottom: 2.5rem;
+  line-height: 1.7;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.hero-visual {
+  position: relative;
+  height: 100svh;
+  background: var(--linen-dark);
+  overflow: hidden;
+}
+
+.hero-slideshow {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+
+.hero-slide.active {
+  opacity: 1;
+}
+
+.hero-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-slide-caption {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  right: 2rem;
+  background: rgba(250, 247, 242, 0.88);
+  backdrop-filter: blur(8px);
+  padding: 1rem 1.25rem;
+  border-radius: var(--r);
+  border-left: 3px solid var(--terra);
+}
+
+.hero-slide-caption h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.2rem;
+}
+
+.hero-slide-caption p {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.hero-slide-dots {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 50%;
+  transform: translateX(50%);
+  display: flex;
+  gap: 6px;
+}
+
+.hero-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(30, 26, 20, 0.25);
+  cursor: pointer;
+  transition: all var(--trans);
+}
+
+.hero-dot.active {
+  background: var(--terra);
+  transform: scale(1.3);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   11. STATISTIEKEN STRIP
+───────────────────────────────────────────────────────────────────────────── */
+.stats-section {
+  background: var(--linen);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.stat-strip {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 3rem 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.stat-item {
+  flex: 1;
+  min-width: 140px;
+  padding: 1.5rem 2rem;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+
+.stat-item:last-child {
+  border-right: none;
+}
+
+.stat-num {
+  font-family: var(--ff-serif);
+  font-size: 2.4rem;
+  color: var(--olive);
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   12. SECTIE-LABEL (decoratieve kopjes)
+───────────────────────────────────────────────────────────────────────────── */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-md);
+}
+
+.section-label span {
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   13. SCHILDERIJKAART
+───────────────────────────────────────────────────────────────────────────── */
+.painting-card {
+  background: var(--canvas);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: all var(--trans);
+  cursor: pointer;
+}
+
+.painting-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-md);
+}
+
+.painting-card-img {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--linen-dark);
+  position: relative;
+}
+
+.painting-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.painting-card:hover .painting-card-img img {
+  transform: scale(1.04);
+}
+
+.painting-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 26, 20, 0);
+  transition: background var(--trans);
+}
+
+.painting-card:hover .painting-card-overlay {
+  background: rgba(30, 26, 20, 0.12);
+}
+
+.painting-card-body {
+  padding: 1rem 1.1rem 1.25rem;
+}
+
+.painting-card-body h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.15rem;
+}
+
+.painting-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.painting-card-price {
+  font-size: 0.9rem;
+  color: var(--terra);
+  font-family: var(--ff-serif);
+}
+
+.painting-card-year {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.painting-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+}
+
+.tag {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.55rem;
+  background: var(--linen-dark);
+  border-radius: 20px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.sold-badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: var(--terra);
+  color: var(--linen);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   14. GALERIJ FILTERS
+───────────────────────────────────────────────────────────────────────────── */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  align-items: center;
+}
+
+.filter-chip {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--border-md);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all var(--trans);
+}
+
+.filter-chip:hover,
+.filter-chip.active {
+  background: var(--olive);
+  color: var(--linen);
+  border-color: var(--olive);
+}
+
+.gallery-header {
+  margin-bottom: 1rem;
+}
+
+.gallery-count {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   15. LIGHTBOX / DETAILPANEEL
+───────────────────────────────────────────────────────────────────────────── */
+#lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-lightbox);
+  background: rgba(30, 26, 20, 0.88);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+#lightbox.open {
+  display: flex;
+}
+
+.lightbox-inner {
+  background: var(--canvas);
+  border-radius: var(--r-lg);
+  max-width: 1000px;
+  width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+
+.lightbox-img {
+  position: sticky;
+  top: 0;
+  height: min(560px, 80vh);
+  overflow: hidden;
+  border-radius: var(--r-lg) 0 0 var(--r-lg);
+}
+
+.lightbox-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lightbox-info {
+  padding: 2.5rem 2rem;
+  overflow-y: auto;
+}
+
+.lightbox-info h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+}
+
+.lightbox-price {
+  font-family: var(--ff-serif);
+  font-size: 1.5rem;
+  color: var(--terra);
+  margin: 0.75rem 0;
+}
+
+.lightbox-story {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.75;
+  margin: 1rem 0;
+}
+
+.lightbox-specs {
+  margin: 1rem 0;
+}
+
+.lightbox-spec {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+
+.lightbox-spec:last-child {
+  border: none;
+}
+
+.lightbox-spec .label {
+  color: var(--muted);
+}
+
+.lightbox-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--linen);
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 10;
+  border: 1px solid var(--border);
+  transition: all var(--trans);
+}
+
+.lightbox-close:hover {
+  background: var(--linen-dark);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   16. REVIEWS
+───────────────────────────────────────────────────────────────────────────── */
+.review-form {
+  background: var(--linen);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.review-form h4 {
+  margin-bottom: 1rem;
+}
+
+.stars-input {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.star-btn {
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--border-md);
+  transition: color var(--trans);
+  line-height: 1;
+}
+
+.star-btn.on {
+  color: var(--terra);
+}
+
+.review-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.review-item {
+  background: var(--linen);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.25rem;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+.review-author {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.review-stars {
+  color: var(--terra);
+  letter-spacing: 0.05em;
+}
+
+.review-text {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   17. OVER MIJ PAGINA
+───────────────────────────────────────────────────────────────────────────── */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.about-portrait {
+  position: sticky;
+  top: 88px;
+}
+
+.about-portrait img {
+  border-radius: var(--r-lg);
+  width: 100%;
+  object-fit: cover;
+  aspect-ratio: 3 / 4;
+}
+
+.about-portrait-placeholder {
+  aspect-ratio: 3 / 4;
+  background: var(--linen-dark);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  border: 2px dashed var(--border-md);
+}
+
+.about-text p {
+  color: var(--muted);
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.technique-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.technique-card {
+  background: var(--linen);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.25rem;
+}
+
+.technique-card h4 {
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+  color: var(--olive-dk);
+  font-family: var(--ff-serif);
+}
+
+.technique-card p {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   18. CONTACTPAGINA
+───────────────────────────────────────────────────────────────────────────── */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.contact-form-wrap {
+  background: var(--linen);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 2rem;
+}
+
+.contact-info h3 {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+}
+
+.contact-info p {
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.75;
+}
+
+.contact-detail {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   19. WINKELMANDJE / SELECTIE SIDEBAR
+───────────────────────────────────────────────────────────────────────────── */
+#cart-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(420px, 100vw);
+  background: var(--canvas);
+  box-shadow: -8px 0 48px rgba(30, 26, 20, 0.18);
+  z-index: var(--z-cart);
+  transform: translateX(100%);
+  transition: transform 0.38s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+#cart-sidebar.open {
+  transform: translateX(0);
+}
+
+.cart-header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.5rem;
+}
+
+.cart-item {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.cart-item img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--r);
+  background: var(--linen-dark);
+}
+
+.cart-item-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.15rem;
+}
+
+.cart-item-price {
+  font-size: 0.85rem;
+  color: var(--terra);
+}
+
+.cart-remove {
+  font-size: 1.1rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color var(--trans);
+  line-height: 1;
+}
+
+.cart-remove:hover {
+  color: var(--terra-dk);
+}
+
+.cart-empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.cart-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.cart-total strong {
+  font-family: var(--ff-serif);
+  font-size: 1.3rem;
+}
+
+.cart-enquire-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 0.75rem;
+  line-height: 1.5;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   20. OVERLAY ACHTERGROND
+───────────────────────────────────────────────────────────────────────────── */
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 26, 20, 0.4);
+  z-index: var(--z-overlay);
+  display: none;
+}
+
+#overlay.open {
+  display: block;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   21. ADMIN PANEEL
+───────────────────────────────────────────────────────────────────────────── */
+#admin-panel {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-admin);
+  background: var(--canvas);
+  overflow-y: auto;
+  display: none;
+}
+
+#admin-panel.open {
+  display: block;
+}
+
+.admin-nav {
+  position: sticky;
+  top: 0;
+  background: var(--olive-dk);
+  color: var(--linen);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  height: 56px;
+  gap: 1.5rem;
+  z-index: 10;
+}
+
+.admin-nav-title {
+  font-size: 0.9rem;
+  font-family: var(--ff-sans);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  flex: 1;
+  color: var(--linen);
+}
+
+.admin-tab {
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.75rem;
+  color: rgba(245, 240, 232, 0.65);
+  cursor: pointer;
+  border-radius: var(--r);
+  transition: all var(--trans);
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+
+.admin-tab:hover,
+.admin-tab.active {
+  background: rgba(245, 240, 232, 0.15);
+  color: var(--linen);
+}
+
+.admin-tab-logout {
+  margin-left: auto;
+  color: rgba(240, 160, 160, 0.85);
+}
+
+.admin-tab-logout:hover {
+  background: rgba(160, 82, 45, 0.3);
+  color: #f5a0a0;
+}
+
+.admin-body {
+  padding: 2rem clamp(1rem, 4vw, 3rem);
+}
+
+.admin-section {
+  display: none;
+}
+
+.admin-section.active {
+  display: block;
+}
+
+.admin-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+  background: var(--linen);
+}
+
+.admin-table .admin-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: var(--r);
+  background: var(--linen-dark);
+}
+
+/* Admin: schilderij modal */
+.admin-modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 26, 20, 0.6);
+  z-index: var(--z-admin-modal);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.admin-modal-bg.open {
+  display: flex;
+}
+
+.admin-modal {
+  background: var(--canvas);
+  border-radius: var(--r-lg);
+  width: min(680px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.admin-modal h3 {
+  margin-bottom: 1.5rem;
+}
+
+/* Admin: login scherm */
+.admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--linen);
+}
+
+.admin-login-box {
+  background: var(--canvas);
+  padding: 3rem;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  width: min(400px, 100%);
+}
+
+.admin-login-box h2 {
+  margin-bottom: 0.5rem;
+}
+
+.admin-login-box .subtitle {
+  color: var(--muted);
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+}
+
+/* Admin: berichtenkaart */
+.message-card {
+  background: var(--linen);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.message-card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.message-card-subject {
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.message-card-body {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.message-card-total {
+  font-size: 0.88rem;
+  color: var(--terra);
+  margin-top: 0.4rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   22. FOOTER
+───────────────────────────────────────────────────────────────────────────── */
+footer {
+  background: var(--ink);
+  color: rgba(245, 240, 232, 0.7);
+  padding: 3rem 0 2rem;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 2.5rem;
+}
+
+.footer-brand {
+  font-family: var(--ff-serif);
+  font-size: 1.4rem;
+  color: var(--linen);
+  margin-bottom: 0.75rem;
+}
+
+.footer-brand span {
+  color: var(--terra-lt);
+}
+
+footer p {
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+.footer-col h4 {
+  font-size: 0.78rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--linen);
+  margin-bottom: 1rem;
+  font-family: var(--ff-sans);
+  font-weight: 400;
+}
+
+.footer-links {
+  list-style: none;
+}
+
+.footer-links li {
+  margin-bottom: 0.4rem;
+}
+
+.footer-links a {
+  font-size: 0.88rem;
+  transition: color var(--trans);
+}
+
+.footer-links a:hover {
+  color: var(--linen);
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(245, 240, 232, 0.12);
+  padding-top: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   23. TOAST MELDING
+───────────────────────────────────────────────────────────────────────────── */
+#toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--linen);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--r);
+  font-size: 0.88rem;
+  z-index: var(--z-toast);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+
+#toast.show {
+  opacity: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   24. LAADSTATUS / SKELETONS
+───────────────────────────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--linen-dark) 25%,
+    var(--linen) 50%,
+    var(--linen-dark) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
+.loading-card {
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.loading-card-img {
+  aspect-ratio: 4 / 5;
+}
+
+.loading-card-body {
+  padding: 1rem;
+}
+
+.loading-line {
+  height: 14px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   25. ANIMATIES
+───────────────────────────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up          { animation: fadeUp 0.6s ease both; }
+.fade-up.delay-1  { animation-delay: 0.10s; }
+.fade-up.delay-2  { animation-delay: 0.22s; }
+.fade-up.delay-3  { animation-delay: 0.34s; }
+.fade-up.delay-4  { animation-delay: 0.46s; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   26. RESPONSIEF ONTWERP
+───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Hero: verberg visuele helft, toon alleen tekst */
+  #hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .hero-visual {
+    display: none;
+  }
+
+  .hero-text {
+    padding: 3rem 1.5rem 2.5rem;
+  }
+
+  /* Lightbox: stapel verticaal */
+  .lightbox-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .lightbox-img {
+    height: 300px;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    position: relative;
+  }
+
+  /* Pagina's met twee kolommen */
+  .about-grid,
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .about-portrait {
+    position: relative;
+    top: 0;
+  }
+
+  /* Footer */
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Formulierrijen */
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Nav: verberg links, toon hamburger */
+  .nav-links {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  /* Footer: één kolom */
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  /* Technieken: één kolom */
+  .technique-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Statistieken */
+  .stat-item {
+    min-width: 50%;
+  }
+}

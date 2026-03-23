@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>W.H. Rodenhuis — Klassieke Schilderkunst</title>
+  <meta name="description" content="Originele klassieke schilderijen van W.H. Rodenhuis. Olieverf op doek, in de traditie van de Hollandse Meesters.">
+  <meta property="og:title"       content="W.H. Rodenhuis — Klassieke Schilderkunst">
+  <meta property="og:description" content="Olieverf op doek in de traditie van de Hollandse Meesters.">
+  <meta property="og:type"        content="website">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Firebase (ES module — stelt window._fb in) -->
+  <script type="module" src="js/firebase-config.js"></script>
+
+  <!-- Applicatielogica (ES module) -->
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     GLOBALE UI-ELEMENTEN
+════════════════════════════════════════════════════════════════════ -->
+
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="overlay" onclick="closeCart()"></div>
+
+<!-- ─── NAVIGATIE ─── -->
+<nav id="nav" role="navigation">
+  <div class="wrap nav-inner">
+    <a class="nav-brand" href="#" onclick="showPage('home')">W.H. <span>Rodenhuis</span></a>
+    <div class="nav-links">
+      <a href="#" onclick="showPage('gallery')" data-i18n="nav.gallery">Galerij</a>
+      <a href="#" onclick="showPage('about')"   data-i18n="nav.about">Over mij</a>
+      <a href="#" onclick="showPage('contact')" data-i18n="nav.contact">Contact</a>
+      <a href="#" onclick="openAdmin()" class="nav-admin" data-i18n="nav.admin">Admin</a>
+    </div>
+    <div class="nav-right">
+      <button class="search-btn" onclick="toggleSearch()" aria-label="Zoeken">&#9906;</button>
+      <button class="lang-toggle" onclick="toggleLang()" id="lang-btn">EN</button>
+      <button class="cart-btn" onclick="toggleCart()" aria-label="Selectie">
+        &#9788;
+        <span class="cart-count" id="cart-count">0</span>
+      </button>
+      <button class="hamburger" onclick="toggleMobile()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobiel uitklapmenu -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#" onclick="showPage('gallery'); closeMobile()" data-i18n="nav.gallery">Galerij</a>
+  <a href="#" onclick="showPage('about');   closeMobile()" data-i18n="nav.about">Over mij</a>
+  <a href="#" onclick="showPage('contact'); closeMobile()" data-i18n="nav.contact">Contact</a>
+  <a href="#" onclick="openAdmin();         closeMobile()" class="nav-admin">Admin</a>
+</div>
+
+<!-- ─── ZOEKOVERLAY ─── -->
+<div id="search-overlay" role="dialog" aria-label="Zoeken">
+  <div class="search-box">
+    <div class="search-input-row">
+      <input type="text" id="search-input"
+        placeholder="Zoek op titel, tag, stijl…"
+        oninput="doSearch(this.value)"
+        autocomplete="off">
+      <button class="btn" onclick="toggleSearch()" data-i18n="btn.close">Sluiten</button>
+    </div>
+    <div id="search-results" role="list"></div>
+  </div>
+</div>
+
+<!-- ─── SELECTIE SIDEBAR ─── -->
+<aside id="cart-sidebar" aria-label="Uw selectie">
+  <div class="cart-header">
+    <h3 data-i18n="cart.title">Selectie</h3>
+    <button onclick="closeCart()" style="font-size:1.3rem;color:var(--muted)">✕</button>
+  </div>
+  <div class="cart-body" id="cart-body">
+    <div class="cart-empty" data-i18n="cart.empty">Uw selectie is leeg.</div>
+  </div>
+  <div class="cart-footer" id="cart-footer" style="display:none">
+    <div class="cart-total">
+      <span data-i18n="cart.total">Totaal</span>
+      <strong id="cart-total-price">€ 0</strong>
+    </div>
+    <button class="btn btn-solid" style="width:100%" onclick="sendEnquiry()">
+      <span data-i18n="cart.enquire">Stuur aanvraag</span>
+    </button>
+    <p class="cart-enquire-note" data-i18n="cart.note">
+      Schilderijen worden op aanvraag gereserveerd. U ontvangt een bevestiging per e-mail.
+    </p>
+  </div>
+</aside>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGINA: HOME
+════════════════════════════════════════════════════════════════════ -->
+<main class="page active" id="page-home">
+
+  <section id="hero" aria-label="Welkom">
+    <div class="hero-text wrap" style="max-width:none">
+      <span class="hero-eyebrow fade-up" data-i18n="hero.eyebrow">Klassieke Schilderkunst · Olieverf op Doek</span>
+      <h1 class="fade-up delay-1">
+        <span data-i18n="hero.title1">Schilderijen die</span><br>
+        <em data-i18n="hero.title2">het licht bewaren</em>
+      </h1>
+      <p class="fade-up delay-2" data-i18n="hero.sub">
+        Een oeuvre van meer dan honderd werken in de traditie van de Hollandse Meesters. Elk doek vertelt een verhaal van licht, stilte en ambacht.
+      </p>
+      <div class="hero-actions fade-up delay-3">
+        <button class="btn btn-solid" onclick="showPage('gallery')" data-i18n="btn.gallery">Bekijk de galerij</button>
+        <button class="btn"           onclick="showPage('about')"   data-i18n="btn.about">Mijn verhaal</button>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-slideshow" id="hero-slideshow"></div>
+      <div class="hero-slide-dots" id="hero-dots"></div>
+    </div>
+  </section>
+
+  <!-- Statistieken -->
+  <section class="stats-section">
+    <div class="wrap">
+      <div class="stat-strip">
+        <div class="stat-item">
+          <div class="stat-num" id="stat-paintings">100+</div>
+          <div class="stat-label" data-i18n="stat.paintings">Schilderijen</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">30+</div>
+          <div class="stat-label" data-i18n="stat.years">Jaar ervaring</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" id="stat-sold">—</div>
+          <div class="stat-label" data-i18n="stat.sold">Verkocht</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">NL</div>
+          <div class="stat-label" data-i18n="stat.origin">Herkomst</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Uitgelichte schilderijen -->
+  <section class="section" style="background:var(--linen);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="wrap">
+      <div class="section-label"><span data-i18n="section.featured">Uitgelicht</span></div>
+      <div class="grid-auto" id="featured-grid"></div>
+      <div style="text-align:center;margin-top:2.5rem">
+        <button class="btn" onclick="showPage('gallery')" data-i18n="btn.allworks">Alle werken bekijken</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Citaat -->
+  <section class="section" style="background:var(--olive-dk);color:var(--linen)">
+    <div class="wrap" style="text-align:center;max-width:800px">
+      <p style="font-family:var(--ff-serif);font-size:clamp(1.3rem,3vw,2rem);font-style:italic;line-height:1.55;margin-bottom:1.5rem;opacity:0.9"
+         data-i18n="quote.text">
+        "Licht is niet wat het schilderij verlicht — licht ís het schilderij."
+      </p>
+      <span class="small" style="opacity:0.55">— W.H. Rodenhuis</span>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">W.H. <span>Rodenhuis</span></div>
+          <p data-i18n="footer.desc">Klassieke schilderkunst in de traditie van de Hollandse Meesters. Olieverf op doek, met aandacht voor licht, compositie en vakmanschap.</p>
+        </div>
+        <div>
+          <h4 class="footer-col" data-i18n="footer.nav">Navigatie</h4>
+          <ul class="footer-links">
+            <li><a href="#" onclick="showPage('gallery')" data-i18n="nav.gallery">Galerij</a></li>
+            <li><a href="#" onclick="showPage('about')"   data-i18n="nav.about">Over mij</a></li>
+            <li><a href="#" onclick="showPage('contact')" data-i18n="nav.contact">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-col" data-i18n="footer.info">Informatie</h4>
+          <ul class="footer-links">
+            <li><a href="#" onclick="showPage('contact')" data-i18n="footer.enquiry">Aanvraag indienen</a></li>
+            <li><a href="#" onclick="showPage('contact')" data-i18n="footer.commission">Opdracht geven</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2025 W.H. Rodenhuis</span>
+        <span data-i18n="footer.rights">Alle rechten voorbehouden</span>
+      </div>
+    </div>
+  </footer>
+</main>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGINA: GALERIJ
+════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-gallery">
+  <section class="section">
+    <div class="wrap">
+      <div class="gallery-header">
+        <h2 data-i18n="gallery.title">Galerij</h2>
+        <p class="gallery-count" id="gallery-count"></p>
+      </div>
+      <div class="filters" id="gallery-filters">
+        <button class="filter-chip active" data-filter="all" onclick="filterGallery('all')" data-i18n="filter.all">Alles</button>
+      </div>
+      <div class="grid-auto" id="gallery-grid"></div>
+    </div>
+  </section>
+  <footer>
+    <div class="wrap">
+      <div class="footer-bottom">
+        <span>© 2025 W.H. Rodenhuis</span>
+        <a href="#" onclick="showPage('home')" data-i18n="footer.back">← Terug naar home</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGINA: OVER MIJ
+════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-about">
+  <section class="section">
+    <div class="wrap">
+      <div class="about-grid">
+        <div class="about-portrait">
+          <div class="about-portrait-placeholder" id="about-photo-wrap">
+            <span data-i18n="about.photo">Foto wordt geladen…</span>
+          </div>
+        </div>
+        <div class="about-text">
+          <span class="hero-eyebrow" data-i18n="about.eyebrow">Over de kunstenaar</span>
+          <h2>W.H. Rodenhuis</h2>
+          <p data-i18n="about.bio1">W.H. Rodenhuis is een Nederlandse schilder die werkt in de traditie van de zeventiende-eeuwse Hollandse Meesters.</p>
+          <p data-i18n="about.bio2">Zijn werk kenmerkt zich door een tijdloze rust — stillevens, landschappen en figuurstudies.</p>
+          <div class="technique-grid">
+            <div class="technique-card">
+              <h4 data-i18n="tech.medium">Medium</h4>
+              <p data-i18n="tech.medium.desc">Olieverf op linnen doek, geprepareerd met traditionele gesso.</p>
+            </div>
+            <div class="technique-card">
+              <h4 data-i18n="tech.style">Stijl</h4>
+              <p data-i18n="tech.style.desc">Klassiek-realistisch, geïnspireerd op de Hollandse Gouden Eeuw.</p>
+            </div>
+            <div class="technique-card">
+              <h4 data-i18n="tech.process">Werkwijze</h4>
+              <p data-i18n="tech.process.desc">Opgebouwd in lagen: imprimatura, dode verf, kleuren en glacis.</p>
+            </div>
+            <div class="technique-card">
+              <h4 data-i18n="tech.size">Formaten</h4>
+              <p data-i18n="tech.size.desc">Van intiem klein (20×25 cm) tot groot formaat (100×120 cm).</p>
+            </div>
+          </div>
+          <div style="margin-top:1.5rem">
+            <button class="btn btn-solid" onclick="showPage('contact')" data-i18n="btn.contact">Neem contact op</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <div class="wrap">
+      <div class="footer-bottom">
+        <span>© 2025 W.H. Rodenhuis</span>
+        <a href="#" onclick="showPage('home')" data-i18n="footer.back">← Terug naar home</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGINA: CONTACT
+════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-contact">
+  <section class="section">
+    <div class="wrap">
+      <div class="contact-grid">
+        <div class="contact-info">
+          <span class="hero-eyebrow" data-i18n="contact.eyebrow">In contact komen</span>
+          <h3 data-i18n="contact.title">Interesse in een werk, of een opdracht?</h3>
+          <p data-i18n="contact.desc">Ik ga graag met u in gesprek over mijn werk, mogelijkheden voor aankoop of het realiseren van een persoonlijk schilderij in opdracht.</p>
+          <div class="contact-detail"><span>✉</span><span id="contact-email">info@whrodenhuis.nl</span></div>
+          <div class="contact-detail"><span>◎</span><span>Nederland</span></div>
+        </div>
+        <div class="contact-form-wrap">
+          <div class="form-group">
+            <label for="cf-name" data-i18n="form.name">Naam</label>
+            <input class="form-control" type="text" id="cf-name" placeholder="Uw naam">
+          </div>
+          <div class="form-group">
+            <label for="cf-email" data-i18n="form.email">E-mailadres</label>
+            <input class="form-control" type="email" id="cf-email" placeholder="uw@email.nl">
+          </div>
+          <div class="form-group">
+            <label for="cf-subject" data-i18n="form.subject">Onderwerp</label>
+            <input class="form-control" type="text" id="cf-subject" placeholder="Informatie / aanvraag / opdracht">
+          </div>
+          <div class="form-group">
+            <label for="cf-message" data-i18n="form.message">Bericht</label>
+            <textarea class="form-control" id="cf-message" rows="5" placeholder="Uw bericht…"></textarea>
+          </div>
+          <button class="btn btn-solid" style="width:100%" onclick="sendContact()" data-i18n="btn.send">Verstuur bericht</button>
+          <div id="cf-status" style="margin-top:1rem" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <div class="wrap">
+      <div class="footer-bottom">
+        <span>© 2025 W.H. Rodenhuis</span>
+        <a href="#" onclick="showPage('home')" data-i18n="footer.back">← Terug naar home</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     LIGHTBOX — Schilderijdetail + reviews
+════════════════════════════════════════════════════════════════════ -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Schilderijdetail">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Sluiten">✕</button>
+    <div class="lightbox-img">
+      <img id="lb-img" src="" alt="">
+    </div>
+    <div class="lightbox-info">
+      <h2 id="lb-title"></h2>
+      <p class="muted small" id="lb-year"></p>
+      <div class="lightbox-price" id="lb-price"></div>
+      <div class="lightbox-specs" id="lb-specs"></div>
+      <p class="lightbox-story" id="lb-story"></p>
+      <div class="painting-tags" id="lb-tags"></div>
+      <div class="lightbox-actions" id="lb-actions"></div>
+
+      <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0">
+
+      <h4 style="margin-bottom:0.75rem" data-i18n="reviews.title">Beoordelingen</h4>
+      <div id="lb-reviews"></div>
+
+      <div class="review-form">
+        <h4 data-i18n="reviews.leave">Laat een beoordeling achter</h4>
+        <div class="form-group">
+          <label for="rv-name" data-i18n="form.name">Naam</label>
+          <input class="form-control" type="text" id="rv-name" placeholder="Uw naam">
+        </div>
+        <div class="form-group">
+          <label data-i18n="reviews.rating">Beoordeling</label>
+          <div class="stars-input" id="stars-input">
+            <span class="star-btn" data-v="1" tabindex="0">★</span>
+            <span class="star-btn" data-v="2" tabindex="0">★</span>
+            <span class="star-btn" data-v="3" tabindex="0">★</span>
+            <span class="star-btn" data-v="4" tabindex="0">★</span>
+            <span class="star-btn" data-v="5" tabindex="0">★</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="rv-text" data-i18n="reviews.comment">Opmerking</label>
+          <textarea class="form-control" id="rv-text" rows="3" placeholder="Uw beoordeling…"></textarea>
+        </div>
+        <button class="btn btn-solid btn-sm" onclick="submitReview()" data-i18n="reviews.submit">
+          Beoordeling plaatsen
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ADMIN PANEEL
+════════════════════════════════════════════════════════════════════ -->
+<div id="admin-panel" role="dialog" aria-modal="true" aria-label="Beheer">
+
+  <!-- Loginscherm -->
+  <div id="admin-login" class="admin-login">
+    <div class="admin-login-box">
+      <h2>Beheer</h2>
+      <p class="subtitle" data-i18n="admin.login.desc">Inloggen als beheerder</p>
+      <div id="login-alert" style="display:none"></div>
+      <div class="form-group">
+        <label for="admin-email">E-mail</label>
+        <input class="form-control" type="email" id="admin-email" placeholder="admin@email.nl">
+      </div>
+      <div class="form-group">
+        <label for="admin-pass">Wachtwoord</label>
+        <input class="form-control" type="password" id="admin-pass" placeholder="••••••••">
+      </div>
+      <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
+        <button class="btn btn-solid" style="flex:1" onclick="doLogin()">Inloggen</button>
+        <button class="btn"           style="flex:1" onclick="closeAdmin()">Annuleren</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="admin-dashboard" style="display:none">
+    <div class="admin-nav">
+      <span class="admin-nav-title">Beheer — W.H. Rodenhuis</span>
+      <button class="admin-tab active" onclick="showAdminTab('paintings', this)">Schilderijen</button>
+      <button class="admin-tab"        onclick="showAdminTab('messages', this)">Berichten</button>
+      <button class="admin-tab"        onclick="showAdminTab('about', this)">Over mij</button>
+      <button class="admin-tab admin-tab-logout" onclick="doLogout()">Uitloggen</button>
+    </div>
+
+    <div class="admin-body">
+
+      <!-- Tab: Schilderijen -->
+      <div class="admin-section active" id="tab-paintings">
+        <div class="admin-toolbar">
+          <h3>Schilderijen</h3>
+          <button class="btn btn-solid" onclick="openPaintingModal()">+ Nieuw schilderij</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Afb.</th><th>Titel</th><th>Jaar</th>
+                <th>Prijs</th><th>Status</th><th>Uitgelicht</th><th>Acties</th>
+              </tr>
+            </thead>
+            <tbody id="admin-paintings-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Berichten -->
+      <div class="admin-section" id="tab-messages">
+        <div class="admin-toolbar">
+          <h3>Ontvangen berichten</h3>
+          <button class="btn" onclick="loadAdminMessages()">↻ Vernieuwen</button>
+        </div>
+        <div id="messages-list"></div>
+      </div>
+
+      <!-- Tab: Over mij -->
+      <div class="admin-section" id="tab-about">
+        <div class="admin-toolbar">
+          <h3>Over mij pagina</h3>
+          <button class="btn btn-solid" onclick="saveAbout()">Opslaan</button>
+        </div>
+        <div style="max-width:700px">
+          <div class="form-group">
+            <label>Foto URL</label>
+            <input class="form-control" type="text" id="about-photo-url" placeholder="https://…">
+          </div>
+          <div class="form-group">
+            <label>Biografie — alinea 1</label>
+            <textarea class="form-control" id="about-bio1" rows="4"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Biografie — alinea 2</label>
+            <textarea class="form-control" id="about-bio2" rows="4"></textarea>
+          </div>
+          <div class="form-group">
+            <label>E-mailadres (contactpagina)</label>
+            <input class="form-control" type="email" id="about-email" placeholder="info@whrodenhuis.nl">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Schilderij toevoegen/bewerken modal -->
+<div class="admin-modal-bg" id="painting-modal-bg" role="dialog" aria-modal="true">
+  <div class="admin-modal">
+    <h3 id="painting-modal-title">Nieuw schilderij</h3>
+    <input type="hidden" id="pm-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Titel (NL)</label>
+        <input class="form-control" type="text" id="pm-title-nl" placeholder="Titel in het Nederlands">
+      </div>
+      <div class="form-group">
+        <label>Title (EN)</label>
+        <input class="form-control" type="text" id="pm-title-en" placeholder="Title in English">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Jaar</label>
+        <input class="form-control" type="number" id="pm-year" placeholder="2024" min="1900" max="2099">
+      </div>
+      <div class="form-group">
+        <label>Prijs (€)</label>
+        <input class="form-control" type="number" id="pm-price" placeholder="1200" min="0">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Afmetingen</label>
+        <input class="form-control" type="text" id="pm-size" placeholder="60 × 80 cm">
+      </div>
+      <div class="form-group">
+        <label>Techniek</label>
+        <input class="form-control" type="text" id="pm-technique" placeholder="Olieverf op linnen">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Verhaal / beschrijving (NL)</label>
+      <textarea class="form-control" id="pm-story-nl" rows="3" placeholder="Vertel het verhaal achter dit werk…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Story / description (EN)</label>
+      <textarea class="form-control" id="pm-story-en" rows="3" placeholder="Tell the story behind this work…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Tags (komma-gescheiden)</label>
+      <input class="form-control" type="text" id="pm-tags" placeholder="stilleven, landschap, portret, licht">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Status</label>
+        <select class="form-control" id="pm-status">
+          <option value="available">Beschikbaar</option>
+          <option value="reserved">Gereserveerd</option>
+          <option value="sold">Verkocht</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Uitgelicht op homepage</label>
+        <select class="form-control" id="pm-featured">
+          <option value="false">Nee</option>
+          <option value="true">Ja</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Afbeelding uploaden</label>
+      <input type="file" id="pm-image" accept="image/*" style="font-size:0.9rem;padding:0.4rem 0">
+      <p class="muted" style="font-size:0.78rem;margin-top:0.3rem">Max. 1600px, JPG of WebP aanbevolen. Of gebruik de URL hieronder.</p>
+    </div>
+    <div class="form-group">
+      <label>Of: afbeelding URL</label>
+      <input class="form-control" type="text" id="pm-image-url" placeholder="https://storage.googleapis.com/…">
+    </div>
+    <div style="display:flex;gap:0.75rem;margin-top:1.5rem;flex-wrap:wrap">
+      <button class="btn btn-solid" onclick="savePainting()">Opslaan</button>
+      <button class="btn"           onclick="closePaintingModal()">Annuleren</button>
+      <button class="btn btn-danger" id="pm-delete-btn" onclick="deletePainting()" style="display:none;margin-left:auto">
+        Verwijderen
+      </button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
