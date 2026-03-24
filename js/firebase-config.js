@@ -1,47 +1,34 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// firebase-config.js
-// Pas ALLEEN dit bestand aan met uw eigen Firebase-projectgegevens.
-// Zoek deze waarden op via: Firebase Console → Project Settings → Your apps
+// js/firebase-config.js  —  PUBLIEKE SITE
+// Alleen Firestore voor het lezen van schilderijen, reviews en het opslaan
+// van contactberichten. Geen auth, geen storage — die zitten in de admin tool.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import {
-  getFirestore, collection, getDocs, addDoc, setDoc,
+  getFirestore,
+  collection, getDocs, addDoc, setDoc,
   doc, getDoc, updateDoc, deleteDoc,
   query, where, orderBy, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import {
-  getStorage, ref, uploadBytes, getDownloadURL, deleteObject
-} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
-import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
-} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 // ─── VUL HIER UW GEGEVENS IN ─────────────────────────────────────────────────
 const firebaseConfig = {
-  apiKey:            "AIzaSyCdE5CQpB3DNXKroCiumqzQCZ2bKpnk0TU",
-  authDomain:        "whrodenhuis-acc.firebaseapp.com",
-  projectId:         "whrodenhuis-acc",
-  storageBucket:     "whrodenhuis-acc.firebasestorage.app",
-  messagingSenderId: "412680715738",
-  appId:             "1:412680715738:web:15938d1ba63de49da454e3"
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+  // storageBucket niet nodig — upload gaat via Cloudinary
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
-const app     = initializeApp(firebaseConfig);
-const db      = getFirestore(app);
-const storage = getStorage(app);
-const auth    = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
 
-// Exposed globally so app.js (non-module) can access Firebase
 window._fb = {
-  db, storage, auth,
-  // Firestore methods
+  db,
   collection, getDocs, addDoc, setDoc,
   doc, getDoc, updateDoc, deleteDoc,
-  query, where, orderBy, serverTimestamp,
-  // Storage methods
-  ref, uploadBytes, getDownloadURL, deleteObject,
-  // Auth methods
-  signInWithEmailAndPassword, signOut, onAuthStateChanged
+  query, where, orderBy, serverTimestamp
 };

@@ -40,7 +40,6 @@
       <a href="#" onclick="showPage('gallery')" data-i18n="nav.gallery">Galerij</a>
       <a href="#" onclick="showPage('about')"   data-i18n="nav.about">Over mij</a>
       <a href="#" onclick="showPage('contact')" data-i18n="nav.contact">Contact</a>
-      <a href="#" onclick="openAdmin()" class="nav-admin" data-i18n="nav.admin">Admin</a>
     </div>
     <div class="nav-right">
       <button class="search-btn" onclick="toggleSearch()" aria-label="Zoeken">&#9906;</button>
@@ -61,7 +60,6 @@
   <a href="#" onclick="showPage('gallery'); closeMobile()" data-i18n="nav.gallery">Galerij</a>
   <a href="#" onclick="showPage('about');   closeMobile()" data-i18n="nav.about">Over mij</a>
   <a href="#" onclick="showPage('contact'); closeMobile()" data-i18n="nav.contact">Contact</a>
-  <a href="#" onclick="openAdmin();         closeMobile()" class="nav-admin">Admin</a>
 </div>
 
 <!-- ─── ZOEKOVERLAY ─── -->
@@ -386,184 +384,6 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════════════════════════════
-     ADMIN PANEEL
-════════════════════════════════════════════════════════════════════ -->
-<div id="admin-panel" role="dialog" aria-modal="true" aria-label="Beheer">
-
-  <!-- Loginscherm -->
-  <div id="admin-login" class="admin-login">
-    <div class="admin-login-box">
-      <h2>Beheer</h2>
-      <p class="subtitle" data-i18n="admin.login.desc">Inloggen als beheerder</p>
-      <div id="login-alert" style="display:none"></div>
-      <div class="form-group">
-        <label for="admin-email">E-mail</label>
-        <input class="form-control" type="email" id="admin-email" placeholder="admin@email.nl">
-      </div>
-      <div class="form-group">
-        <label for="admin-pass">Wachtwoord</label>
-        <input class="form-control" type="password" id="admin-pass" placeholder="••••••••">
-      </div>
-      <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
-        <button class="btn btn-solid" style="flex:1" onclick="doLogin()">Inloggen</button>
-        <button class="btn"           style="flex:1" onclick="closeAdmin()">Annuleren</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Dashboard -->
-  <div id="admin-dashboard" style="display:none">
-    <div class="admin-nav">
-      <span class="admin-nav-title">Beheer — W.H. Rodenhuis</span>
-      <button class="admin-tab active" onclick="showAdminTab('paintings', this)">Schilderijen</button>
-      <button class="admin-tab"        onclick="showAdminTab('messages', this)">Berichten</button>
-      <button class="admin-tab"        onclick="showAdminTab('about', this)">Over mij</button>
-      <button class="admin-tab admin-tab-logout" onclick="doLogout()">Uitloggen</button>
-    </div>
-
-    <div class="admin-body">
-
-      <!-- Tab: Schilderijen -->
-      <div class="admin-section active" id="tab-paintings">
-        <div class="admin-toolbar">
-          <h3>Schilderijen</h3>
-          <button class="btn btn-solid" onclick="openPaintingModal()">+ Nieuw schilderij</button>
-        </div>
-        <div style="overflow-x:auto">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Afb.</th><th>Titel</th><th>Jaar</th>
-                <th>Prijs</th><th>Status</th><th>Uitgelicht</th><th>Acties</th>
-              </tr>
-            </thead>
-            <tbody id="admin-paintings-body"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Tab: Berichten -->
-      <div class="admin-section" id="tab-messages">
-        <div class="admin-toolbar">
-          <h3>Ontvangen berichten</h3>
-          <button class="btn" onclick="loadAdminMessages()">↻ Vernieuwen</button>
-        </div>
-        <div id="messages-list"></div>
-      </div>
-
-      <!-- Tab: Over mij -->
-      <div class="admin-section" id="tab-about">
-        <div class="admin-toolbar">
-          <h3>Over mij pagina</h3>
-          <button class="btn btn-solid" onclick="saveAbout()">Opslaan</button>
-        </div>
-        <div style="max-width:700px">
-          <div class="form-group">
-            <label>Foto URL</label>
-            <input class="form-control" type="text" id="about-photo-url" placeholder="https://…">
-          </div>
-          <div class="form-group">
-            <label>Biografie — alinea 1</label>
-            <textarea class="form-control" id="about-bio1" rows="4"></textarea>
-          </div>
-          <div class="form-group">
-            <label>Biografie — alinea 2</label>
-            <textarea class="form-control" id="about-bio2" rows="4"></textarea>
-          </div>
-          <div class="form-group">
-            <label>E-mailadres (contactpagina)</label>
-            <input class="form-control" type="email" id="about-email" placeholder="info@whrodenhuis.nl">
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<!-- Schilderij toevoegen/bewerken modal -->
-<div class="admin-modal-bg" id="painting-modal-bg" role="dialog" aria-modal="true">
-  <div class="admin-modal">
-    <h3 id="painting-modal-title">Nieuw schilderij</h3>
-    <input type="hidden" id="pm-id">
-    <div class="form-row">
-      <div class="form-group">
-        <label>Titel (NL)</label>
-        <input class="form-control" type="text" id="pm-title-nl" placeholder="Titel in het Nederlands">
-      </div>
-      <div class="form-group">
-        <label>Title (EN)</label>
-        <input class="form-control" type="text" id="pm-title-en" placeholder="Title in English">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Jaar</label>
-        <input class="form-control" type="number" id="pm-year" placeholder="2024" min="1900" max="2099">
-      </div>
-      <div class="form-group">
-        <label>Prijs (€)</label>
-        <input class="form-control" type="number" id="pm-price" placeholder="1200" min="0">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Afmetingen</label>
-        <input class="form-control" type="text" id="pm-size" placeholder="60 × 80 cm">
-      </div>
-      <div class="form-group">
-        <label>Techniek</label>
-        <input class="form-control" type="text" id="pm-technique" placeholder="Olieverf op linnen">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Verhaal / beschrijving (NL)</label>
-      <textarea class="form-control" id="pm-story-nl" rows="3" placeholder="Vertel het verhaal achter dit werk…"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Story / description (EN)</label>
-      <textarea class="form-control" id="pm-story-en" rows="3" placeholder="Tell the story behind this work…"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Tags (komma-gescheiden)</label>
-      <input class="form-control" type="text" id="pm-tags" placeholder="stilleven, landschap, portret, licht">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Status</label>
-        <select class="form-control" id="pm-status">
-          <option value="available">Beschikbaar</option>
-          <option value="reserved">Gereserveerd</option>
-          <option value="sold">Verkocht</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Uitgelicht op homepage</label>
-        <select class="form-control" id="pm-featured">
-          <option value="false">Nee</option>
-          <option value="true">Ja</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Afbeelding uploaden</label>
-      <input type="file" id="pm-image" accept="image/*" style="font-size:0.9rem;padding:0.4rem 0">
-      <p class="muted" style="font-size:0.78rem;margin-top:0.3rem">Max. 1600px, JPG of WebP aanbevolen. Of gebruik de URL hieronder.</p>
-    </div>
-    <div class="form-group">
-      <label>Of: afbeelding URL</label>
-      <input class="form-control" type="text" id="pm-image-url" placeholder="https://storage.googleapis.com/…">
-    </div>
-    <div style="display:flex;gap:0.75rem;margin-top:1.5rem;flex-wrap:wrap">
-      <button class="btn btn-solid" onclick="savePainting()">Opslaan</button>
-      <button class="btn"           onclick="closePaintingModal()">Annuleren</button>
-      <button class="btn btn-danger" id="pm-delete-btn" onclick="deletePainting()" style="display:none;margin-left:auto">
-        Verwijderen
-      </button>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
