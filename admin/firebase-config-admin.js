@@ -21,11 +21,11 @@ import {
 
 // ─── FIREBASE CONFIG ─────────────────────────────────────────────────────────
 const firebaseConfig = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey:            "AIzaSyAPjhEJGMwkO2Yx_1PY51XeY6bJH74rHZY",
+  authDomain:        "whrodenhuis-t1.firebaseapp.com",
+  projectId:         "whrodenhuis-t1",
+  messagingSenderId: "839535792366",
+  appId:             "1:839535792366:web:f45c188319e5ca72fee3ff"
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
