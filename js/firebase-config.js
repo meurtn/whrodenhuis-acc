@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// js/firebase-config.js  —  PUBLIEKE SITE
+// js/firebase-config.js  -  PUBLIEKE SITE
 // Alleen Firestore voor het lezen van schilderijen, reviews en het opslaan
-// van contactberichten. Geen auth, geen storage — die zitten in de admin tool.
+// van contactberichten. Geen auth, geen storage - die zitten in de admin tool.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -19,7 +19,7 @@ const firebaseConfig = {
   projectId:         "YOUR_PROJECT_ID",
   messagingSenderId: "YOUR_SENDER_ID",
   appId:             "YOUR_APP_ID"
-  // storageBucket niet nodig — upload gaat via Cloudinary
+  // storageBucket niet nodig - upload gaat via Cloudinary
 };
 // ─────────────────────────────────────────────────────────────────────────────
 

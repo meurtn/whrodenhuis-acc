@@ -1,5 +1,5 @@
 // =============================================================================
-// app.js — W.H. Rodenhuis
+// app.js - W.H. Rodenhuis
 // Importeert i18n; verwacht dat window._fb is ingesteld door firebase-config.js
 // =============================================================================
 
@@ -246,7 +246,7 @@ async function loadFeatured() {
   let total = 0, sold = 0;
   allSnap.forEach(d => { total++; if (d.data().status === 'sold') sold++; });
   document.getElementById('stat-paintings').textContent = total || '100+';
-  document.getElementById('stat-sold').textContent      = sold  || '—';
+  document.getElementById('stat-sold').textContent      = sold  || '-';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -258,7 +258,7 @@ function paintingCardHTML(p) {
   const soldBadge = p.status === 'sold'
     ? `<span class="sold-badge">${t('sold')}</span>` : '';
   const priceLabel = p.status === 'sold'
-    ? t('sold') : (p.price ? formatPrice(p.price) : '—');
+    ? t('sold') : (p.price ? formatPrice(p.price) : '-');
 
   return `
     <div class="painting-card" onclick="openLightbox('${p.id}')">
@@ -466,7 +466,7 @@ async function submitReview() {
     createdAt:   serverTimestamp()
   });
 
-  showToast(lang === 'nl' ? 'Beoordeling geplaatst — dank!' : 'Review submitted — thank you!');
+  showToast(lang === 'nl' ? 'Beoordeling geplaatst - dank!' : 'Review submitted - thank you!');
   loadReviews(currentPainting.id);
 
   document.getElementById('rv-name').value = '';
@@ -624,7 +624,7 @@ async function loadAboutPage() {
       document.getElementById('contact-email').textContent = data.email;
     }
   } catch (e) {
-    // Nog geen about-document — standaardteksten blijven zichtbaar
+    // Nog geen about-document - standaardteksten blijven zichtbaar
   }
 }
 
@@ -646,5 +646,5 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTranslations();
 });
 
-// EINDE — admin-functionaliteit zit in admin/index.html (lokaal bestand)
+// EINDE - admin-functionaliteit zit in admin/index.html (lokaal bestand)
 

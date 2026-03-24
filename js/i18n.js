@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// i18n.js  —  Alle NL/EN vertalingen voor de website
+// i18n.js  -  Alle NL/EN vertalingen voor de website
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const translations = {
@@ -34,7 +34,7 @@ export const translations = {
 
     // Secties
     'section.featured': 'Uitgelicht',
-    'quote.text':       '"Licht is niet wat het schilderij verlicht — licht ís het schilderij."',
+    'quote.text':       '"Licht is niet wat het schilderij verlicht - licht ís het schilderij."',
 
     // Footer
     'footer.desc':     'Klassieke schilderkunst in de traditie van de Hollandse Meesters. Olieverf op doek, met aandacht voor licht, compositie en vakmanschap.',
@@ -60,7 +60,7 @@ export const translations = {
     'about.eyebrow': 'Over de kunstenaar',
     'about.photo':   'Foto wordt geladen…',
     'about.bio1':    'W.H. Rodenhuis is een Nederlandse schilder die werkt in de traditie van de zeventiende-eeuwse Hollandse Meesters.',
-    'about.bio2':    'Zijn werk kenmerkt zich door een tijdloze rust — stillevens, landschappen en figuurstudies.',
+    'about.bio2':    'Zijn werk kenmerkt zich door een tijdloze rust - stillevens, landschappen en figuurstudies.',
 
     // Techniek
     'tech.medium':       'Medium',
@@ -137,7 +137,7 @@ export const translations = {
 
     // Sections
     'section.featured': 'Featured works',
-    'quote.text':       '"Light is not what illuminates the painting — light is the painting."',
+    'quote.text':       '"Light is not what illuminates the painting - light is the painting."',
 
     // Footer
     'footer.desc':      'Classical painting in the tradition of the Dutch Masters. Oil on canvas, with attention to light, composition, and craftsmanship.',
@@ -163,7 +163,7 @@ export const translations = {
     'about.eyebrow': 'About the artist',
     'about.photo':   'Loading photo…',
     'about.bio1':    'W.H. Rodenhuis is a Dutch painter working in the tradition of the seventeenth-century Dutch Masters.',
-    'about.bio2':    'His work is characterised by a timeless calm — still lifes, landscapes, and figure studies.',
+    'about.bio2':    'His work is characterised by a timeless calm - still lifes, landscapes, and figure studies.',
 
     // Technique
     'tech.medium':       'Medium',
@@ -211,7 +211,7 @@ export const translations = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Active language state — starts in Dutch
+// Active language state - starts in Dutch
 // ─────────────────────────────────────────────────────────────────────────────
 export let lang = 'nl';
 
