@@ -752,6 +752,7 @@ h4 { font-size: 1.15rem; }
   margin-bottom: 1.25rem;
   margin-top: 0.35rem;
 }
+.atelier-text h2 em { font-style: italic; color: var(--terra); }
 
 .atelier-text p {
   color: var(--muted);
