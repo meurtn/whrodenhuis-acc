@@ -429,6 +429,21 @@ tr:hover td { background: rgba(245,240,232,0.5); }
   <div class="modal">
     <h3 id="modal-title">Nieuw schilderij</h3>
 
+    <!-- Image upload FIRST - preview before filling in details -->
+    <div class="form-group">
+      <label>Afbeelding uploaden via Cloudinary *</label>
+      <input type="file" id="pm-image" accept="image/*"
+        style="font-size:0.88rem;padding:0.3rem 0">
+      <progress id="upload-progress" max="100" value="0"></progress>
+      <p class="hint">Max. 1600px, JPG of WebP aanbevolen. Map: <code>paintings/</code></p>
+    </div>
+
+    <!-- Preview shown immediately after file selection or when editing -->
+    <div id="img-preview-wrap" style="margin-bottom:1.25rem">
+      <p class="hint" style="margin-bottom:0.5rem">Afbeelding:</p>
+      <img id="img-preview" src="" alt="Preview" style="max-height:220px;border-radius:6px;border:1px solid var(--border);object-fit:cover">
+    </div>
+
     <div class="form-row">
       <div class="form-group">
         <label>Titel (NL) *</label>
@@ -454,7 +469,7 @@ tr:hover td { background: rgba(245,240,232,0.5); }
     <div class="form-row">
       <div class="form-group">
         <label>Afmetingen</label>
-        <input class="form-control" type="text" id="pm-size" placeholder="60 × 80 cm">
+        <input class="form-control" type="text" id="pm-size" placeholder="60 x 80 cm">
       </div>
       <div class="form-group">
         <label>Techniek</label>
@@ -496,23 +511,6 @@ tr:hover td { background: rgba(245,240,232,0.5); }
           <option value="true">Ja - toon in hero en uitgelicht-sectie</option>
         </select>
       </div>
-    </div>
-
-    <div class="form-group">
-      <label>Afbeelding uploaden via Cloudinary *</label>
-      <input type="file" id="pm-image" accept="image/*"
-        style="font-size:0.88rem;padding:0.3rem 0">
-      <progress id="upload-progress" max="100" value="0"></progress>
-      <p class="hint">
-        Aanbevolen: max. 1600px aan de lange zijde, JPG of WebP.
-        Cloudinary-map: <code>paintings/</code> · Preset: <code>whrodenhuis-t1</code>
-      </p>
-    </div>
-
-    <!-- Preview van huidige / nieuwe afbeelding -->
-    <div id="img-preview-wrap">
-      <p class="hint" style="margin-bottom:0.4rem">Huidige afbeelding:</p>
-      <img id="img-preview" src="" alt="Afbeeldingpreview">
     </div>
 
     <div class="modal-footer">

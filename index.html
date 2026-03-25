@@ -42,10 +42,12 @@
       <a href="#" onclick="showPage('contact')" data-i18n="nav.contact">Contact</a>
     </div>
     <div class="nav-right">
-      <button class="search-btn" onclick="toggleSearch()" aria-label="Zoeken">&#9906;</button>
-      <button class="lang-toggle" onclick="toggleLang()" id="lang-btn">EN</button>
+      <button class="nav-icon-btn" onclick="toggleSearch()" aria-label="Zoeken">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+      </button>
+      <button class="lang-toggle" onclick="toggleLang()" id="lang-btn">NL</button>
       <button class="cart-btn" onclick="toggleCart()" aria-label="Selectie">
-        &#9788;
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         <span class="cart-count" id="cart-count">0</span>
       </button>
       <button class="hamburger" onclick="toggleMobile()" aria-label="Menu">
@@ -80,7 +82,7 @@
 <aside id="cart-sidebar" aria-label="Uw selectie">
   <div class="cart-header">
     <h3 data-i18n="cart.title">Selectie</h3>
-    <button onclick="closeCart()" style="font-size:1.3rem;color:var(--muted)">✕</button>
+    <button class="cart-close-btn" onclick="closeCart()" aria-label="Selectie sluiten">✕</button>
   </div>
   <div class="cart-body" id="cart-body">
     <div class="cart-empty" data-i18n="cart.empty">Uw selectie is leeg.</div>
@@ -207,7 +209,7 @@
 <!-- ═══════════════════════════════════════════════════════════════
      PAGINA: GALERIJ
 ════════════════════════════════════════════════════════════════════ -->
-<div class="page" id="page-gallery">
+<div class="page page-inner" id="page-gallery">
   <section class="section">
     <div class="wrap">
       <div class="gallery-header">
@@ -234,7 +236,7 @@
 <!-- ═══════════════════════════════════════════════════════════════
      PAGINA: OVER MIJ
 ════════════════════════════════════════════════════════════════════ -->
-<div class="page" id="page-about">
+<div class="page page-inner" id="page-about">
   <section class="section">
     <div class="wrap">
       <div class="about-grid">
@@ -287,7 +289,7 @@
 <!-- ═══════════════════════════════════════════════════════════════
      PAGINA: CONTACT
 ════════════════════════════════════════════════════════════════════ -->
-<div class="page" id="page-contact">
+<div class="page page-inner" id="page-contact">
   <section class="section">
     <div class="wrap">
       <div class="contact-grid">
@@ -295,8 +297,14 @@
           <span class="hero-eyebrow" data-i18n="contact.eyebrow">In contact komen</span>
           <h3 data-i18n="contact.title">Interesse in een werk, of een opdracht?</h3>
           <p data-i18n="contact.desc">Ik ga graag met u in gesprek over mijn werk, mogelijkheden voor aankoop of het realiseren van een persoonlijk schilderij in opdracht.</p>
-          <div class="contact-detail"><span>✉</span><span id="contact-email">info@whrodenhuis.nl</span></div>
-          <div class="contact-detail"><span>◎</span><span>Nederland</span></div>
+          <div class="contact-detail">
+            <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+            <span id="contact-email">info@whrodenhuis.nl</span>
+          </div>
+          <div class="contact-detail">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 018 8c0 5.5-8 14-8 14S4 15.5 4 10a8 8 0 018-8z"/></svg>
+            <span>Nederland</span>
+          </div>
         </div>
         <div class="contact-form-wrap">
           <div class="form-group">

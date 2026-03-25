@@ -71,7 +71,8 @@ function showToast(msg) {
 function toggleLang() {
   lang = lang === 'nl' ? 'en' : 'nl';
   setLang(lang);
-  document.getElementById('lang-btn').textContent = lang === 'nl' ? 'EN' : 'NL';
+  // Button shows the CURRENT language (NL when in Dutch, EN when in English)
+  document.getElementById('lang-btn').textContent = lang === 'nl' ? 'NL' : 'EN';
   document.documentElement.lang = lang;
   applyTranslations();
 
@@ -92,7 +93,11 @@ function showPage(name) {
   window.scrollTo(0, 0);
   closeMobile();
 
-  // Laad paginaspecifieke data
+  // Update nav active state
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.classList.toggle('active', a.getAttribute('onclick')?.includes("'" + name + "'"));
+  });
+
   if (name === 'gallery') loadGallery();
   if (name === 'about')   loadAboutPage();
 }
@@ -240,6 +245,7 @@ async function loadFeatured() {
 
   grid.innerHTML = paintings.slice(0, 6).map(paintingCardHTML).join('') ||
     '<p class="muted">Voeg schilderijen toe via het admin-paneel.</p>';
+  observeRevealElements();
 
   // Update statistieken
   const allSnap = await getDocs(collection(db, 'paintings'));
@@ -259,12 +265,15 @@ function paintingCardHTML(p) {
     ? `<span class="sold-badge">${t('sold')}</span>` : '';
   const priceLabel = p.status === 'sold'
     ? t('sold') : (p.price ? formatPrice(p.price) : '-');
+  const overlayText = lang === 'nl' ? 'Bekijk details' : 'View details';
 
   return `
-    <div class="painting-card" onclick="openLightbox('${p.id}')">
+    <div class="painting-card reveal" onclick="openLightbox('${p.id}')">
       <div class="painting-card-img">
         <img src="${p.imageUrl || ''}" alt="${title}" loading="lazy">
-        <div class="painting-card-overlay"></div>
+        <div class="painting-card-overlay">
+          <span class="painting-card-overlay-text">${overlayText}</span>
+        </div>
         ${soldBadge}
       </div>
       <div class="painting-card-body">
@@ -276,6 +285,16 @@ function paintingCardHTML(p) {
         <div class="painting-tags">${tags}</div>
       </div>
     </div>`;
+}
+
+// Scroll reveal observer - activates .reveal elements as they enter viewport
+const _revealObserver = new IntersectionObserver(
+  entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); _revealObserver.unobserve(e.target); } }),
+  { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+);
+
+function observeRevealElements() {
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el => _revealObserver.observe(el));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -323,6 +342,7 @@ function renderGallery() {
   document.getElementById('gallery-grid').innerHTML = filtered.length
     ? filtered.map(paintingCardHTML).join('')
     : `<p class="muted">${lang === 'nl' ? 'Geen schilderijen gevonden.' : 'No paintings found.'}</p>`;
+  observeRevealElements();
 }
 
 window.filterGallery = filterGallery;
