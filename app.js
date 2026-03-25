@@ -14,9 +14,7 @@ let allPaintings  = [];            // Cache van alle schilderijen (galerij)
 let activeFilter  = 'all';         // Actieve galerijfilter
 let currentPainting = null;        // Open schilderij in lightbox
 let selectedStars = 0;             // Sterren in reviewformulier
-let heroSlides    = [];            // Schilderijen in hero-slideshow
-let heroIdx       = 0;             // Huidige slide-index
-let heroTimer     = null;          // Interval voor automatisch wisselen
+let heroSlides    = [];            // Schilderijen in hero thumbnail strip
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -255,9 +253,7 @@ async function loadFeatured() {
   let total = 0, sold = 0;
   allSnap2.forEach(d => { total++; if (d.data().status === 'sold') sold++; });
   const paintEl = document.getElementById('stat-paintings');
-  const soldEl  = document.getElementById('stat-sold');
   if (paintEl) paintEl.textContent = total || '100+';
-  if (soldEl)  soldEl.textContent  = sold  || '-';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

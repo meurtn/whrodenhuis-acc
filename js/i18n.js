@@ -87,8 +87,10 @@ export const translations = {
     // Over mij
     'about.eyebrow': 'Over de kunstenaar',
     'about.photo':   'Foto wordt geladen…',
-    'about.bio1':    'W.H. Rodenhuis is een Nederlandse schilder die werkt in de traditie van de zeventiende-eeuwse Hollandse Meesters.',
-    'about.bio2':    'Zijn werk kenmerkt zich door een tijdloze rust - stillevens, landschappen en figuurstudies.',
+    // Bio comes exclusively from Firestore (set via admin) - no i18n fallback
+    // to avoid flash of wrong placeholder text during language switch
+    'about.bio1':    '',
+    'about.bio2':    '',
 
     // Techniek
     'tech.medium':       'Medium',
@@ -225,8 +227,9 @@ export const translations = {
     // About
     'about.eyebrow': 'About the artist',
     'about.photo':   'Loading photo…',
-    'about.bio1':    'W.H. Rodenhuis is a Dutch painter working in the tradition of the seventeenth-century Dutch Masters.',
-    'about.bio2':    'His work is characterised by a timeless calm - still lifes, landscapes, and figure studies.',
+    // Bio comes exclusively from Firestore - no i18n fallback
+    'about.bio1':    '',
+    'about.bio2':    '',
 
     // Technique
     'tech.medium':       'Medium',
@@ -295,6 +298,9 @@ export function setLang(newLang) {
 
 export function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
-    el.textContent = t(el.dataset.i18n);
+    const val = t(el.dataset.i18n);
+    // Skip empty translations - these are Firestore-only fields (e.g. about.bio1)
+    // that should never be overwritten by a blank i18n fallback
+    if (val !== '') el.textContent = val;
   });
 }
