@@ -129,6 +129,34 @@ document.getElementById('admin-pass')
   ?.addEventListener('keydown', e => { if (e.key === 'Enter') loginWithEmail(); });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ADMIN TAAL - NL/EN schakelaar
+// ─────────────────────────────────────────────────────────────────────────────
+let adminLang = 'nl'; // 'nl' | 'en'
+
+function setAdminLang(lang) {
+  adminLang = lang;
+
+  // Update buttons
+  document.getElementById('admin-lang-nl').classList.toggle('active', lang === 'nl');
+  document.getElementById('admin-lang-en').classList.toggle('active', lang === 'en');
+
+  // Update note in Over mij tab
+  const note = document.getElementById('about-lang-note');
+  if (note) {
+    note.innerHTML = lang === 'nl'
+      ? 'Huidige taal: <strong>Nederlands</strong> - gebruik de NL/EN knop bovenin om te wisselen.'
+      : 'Current language: <strong>English</strong> - use the NL/EN button above to switch.';
+  }
+
+  // Reload active tab with new language
+  const activeTab = document.querySelector('.tab-panel.active');
+  if (activeTab?.id === 'tab-about') loadAbout();
+  if (activeTab?.id === 'tab-texts') loadTexts();
+}
+
+window.setAdminLang = setAdminLang;
+
+// ─────────────────────────────────────────────────────────────────────────────
 // TABBLADEN
 // ─────────────────────────────────────────────────────────────────────────────
 function showTab(tab, btn) {
@@ -490,38 +518,63 @@ window.markRead      = markRead;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OVER MIJ
+// Bio fields are stored per language: bio1/bio2 (NL) and bio1En/bio2En (EN).
+// Photos and email are language-independent.
 // ─────────────────────────────────────────────────────────────────────────────
 async function loadAbout() {
   const { db, doc, getDoc } = fb();
+  const isEn = adminLang === 'en';
+
+  // Update field labels to reflect current language
+  const b1label = document.getElementById('about-bio1-label');
+  const b2label = document.getElementById('about-bio2-label');
+  if (b1label) b1label.textContent = isEn ? 'Biography - paragraph 1 (EN)' : 'Biografie - alinea 1 (NL)';
+  if (b2label) b2label.textContent = isEn ? 'Biography - paragraph 2 (EN)' : 'Biografie - alinea 2 (NL)';
+
   try {
     const snap = await getDoc(doc(db, 'settings', 'about'));
     if (!snap.exists()) return;
     const data = snap.data();
-    document.getElementById('about-photo-url').value  = data.photoUrl       || '';
-    document.getElementById('about-bio1').value        = data.bio1            || '';
-    document.getElementById('about-bio2').value        = data.bio2            || '';
-    document.getElementById('about-email').value       = data.email           || '';
-    document.getElementById('atelier-photo-url').value = data.atelierPhotoUrl || '';
+
+    // Language-independent fields (only set when showing NL to avoid overwriting)
+    if (!isEn) {
+      document.getElementById('about-photo-url').value  = data.photoUrl        || '';
+      document.getElementById('about-email').value      = data.email           || '';
+      document.getElementById('atelier-photo-url').value = data.atelierPhotoUrl || '';
+    }
+
+    // Language-dependent bio fields
+    document.getElementById('about-bio1').value = isEn ? (data.bio1En || '') : (data.bio1 || '');
+    document.getElementById('about-bio2').value = isEn ? (data.bio2En || '') : (data.bio2 || '');
+
   } catch {}
 }
 
 async function saveAbout() {
   const { db, doc, setDoc } = fb();
   const saveBtn = document.getElementById('btn-save-about');
+  const isEn    = adminLang === 'en';
   setLoading(saveBtn, true, 'Opslaan');
 
-  const photoUrl       = await _resolvePhoto('about-photo-file',   'about-photo-url',   saveBtn);
-  const atelierPhotoUrl = await _resolvePhoto('atelier-photo-file', 'atelier-photo-url', saveBtn);
+  const bio1val = document.getElementById('about-bio1').value.trim();
+  const bio2val = document.getElementById('about-bio2').value.trim();
 
-  const data = {
-    photoUrl,
-    bio1:           document.getElementById('about-bio1').value.trim(),
-    bio2:           document.getElementById('about-bio2').value.trim(),
-    email:          document.getElementById('about-email').value.trim(),
-    atelierPhotoUrl
-  };
+  if (isEn) {
+    // EN: only save EN bio fields, leave everything else untouched
+    await setDoc(doc(db, 'settings', 'about'), { bio1En: bio1val, bio2En: bio2val }, { merge: true });
+  } else {
+    // NL: save all fields including photos
+    const photoUrl        = await _resolvePhoto('about-photo-file',   'about-photo-url',   saveBtn);
+    const atelierPhotoUrl = await _resolvePhoto('atelier-photo-file', 'atelier-photo-url', saveBtn);
+    await setDoc(doc(db, 'settings', 'about'), {
+      photoUrl,
+      bio1: bio1val,
+      bio2: bio2val,
+      email:          document.getElementById('about-email').value.trim(),
+      atelierPhotoUrl
+    }, { merge: true });
+  }
 
-  await setDoc(doc(db, 'settings', 'about'), data, { merge: true });
   showToast('"Over mij" opgeslagen.');
   setLoading(saveBtn, false, 'Opslaan');
 }
@@ -562,7 +615,8 @@ const TEXT_LABELS = {
   'contact.desc':         'Contact - beschrijving',
   'contact.note':         'Contact - galerijtip',
   'atelier.eyebrow':      'Atelier - bovenkopje',
-  'atelier.title':        'Atelier - koptitel',
+  'atelier.title1':       'Atelier - koptitel regel 1',
+  'atelier.title2':       'Atelier - koptitel regel 2 (cursief)',
   'atelier.body1':        'Atelier - alinea 1',
   'atelier.body2':        'Atelier - alinea 2',
   'atelier.chip1':        'Atelier - chip 1 (techniek-label)',
@@ -591,7 +645,8 @@ const TEXT_DEFAULTS = {
   'contact.desc':         'Ik ga graag met u in gesprek over mijn werk, mogelijkheden voor aankoop of het realiseren van een persoonlijk schilderij in opdracht. Vul het formulier in en ik reageer binnen enkele dagen.',
   'contact.note':         'Heeft u al een werk op het oog? Voeg het toe aan uw selectie vanuit de galerij voor een gerichte aanvraag.',
   'atelier.eyebrow':      'De kunstenaar aan het werk',
-  'atelier.title':        'Ambacht in een tijdperk van snelheid',
+  'atelier.title1':       'Ambacht in een',
+  'atelier.title2':       'tijdperk van snelheid',
   'atelier.body1':        'In het atelier ruikt het naar lijnzaadolie en terpentijn. Op een met gesso voorbereid linnen doek begint elk schilderij met een dunne imprimatura - een warme bruintint die het licht al van binnenuit laat gloeien voordat er ook maar een echte kleur op het doek zit.',
   'atelier.body2':        'W.H. Rodenhuis werkt in lagen, zoals de meesters van de Gouden Eeuw dat deden. Dode verf, kleuren, glacis. Het duurt soms weken voor een werk klaar is - en dat is precies de bedoeling. Geduld is de kern van het ambacht.',
   'atelier.chip1':        'Olieverf op linnen',
@@ -608,50 +663,87 @@ const TEXT_DEFAULTS = {
   'atelier.step4.desc':   'Transparante afwerklagen voor diepte en glans',
 };
 
+// English default values (from i18n.js EN translations)
+const TEXT_DEFAULTS_EN = {
+  'hero.eyebrow':         'Classical Painting · Oil on Canvas',
+  'hero.title1':          'Paintings that',
+  'hero.title2':          'preserve the light',
+  'hero.sub':             'A body of over one hundred works in the tradition of the Dutch Masters. Each canvas tells a story of light, silence, and craftsmanship.',
+  'quote.text':           '"Light is not what illuminates the painting - light is the painting."',
+  'footer.desc':          'Classical painting in the tradition of the Dutch Masters. Oil on canvas, with attention to light, composition, and craftsmanship.',
+  'contact.eyebrow':      'Get in touch',
+  'contact.title':        'Interested in a work, or a commission?',
+  'contact.desc':         'I am happy to discuss my work, purchase options, or the creation of a personal commissioned painting. Fill in the form and I will respond within a few days.',
+  'contact.note':         'Already have a work in mind? Add it to your selection from the gallery for a focused enquiry.',
+  'atelier.eyebrow':      'The artist at work',
+  'atelier.title1':       'Craftsmanship in an',
+  'atelier.title2':       'age of speed',
+  'atelier.body1':        'The studio smells of linseed oil and turpentine. On a gesso-prepared linen canvas, every painting begins with a thin imprimatura - a warm brown tone that makes the light glow from within before a single real colour touches the surface.',
+  'atelier.body2':        'W.H. Rodenhuis works in layers, as the masters of the Golden Age did. Dead colour, glazes, scumbles. A work can take weeks to complete - and that is precisely the point. Patience is the heart of the craft.',
+  'atelier.chip1':        'Oil on linen',
+  'atelier.chip2':        'Classical layering technique',
+  'atelier.chip3':        'Dutch Masters tradition',
+  'atelier.chip4':        'Light & shadow',
+  'atelier.step1.title':  'Imprimatura',
+  'atelier.step1.desc':   'Warm undertone that guides the light',
+  'atelier.step2.title':  'Dead colour',
+  'atelier.step2.desc':   'Form and volume in grey tones',
+  'atelier.step3.title':  'Colour',
+  'atelier.step3.desc':   'Rich pigments, built up in layers',
+  'atelier.step4.title':  'Glazes',
+  'atelier.step4.desc':   'Transparent finishing layers for depth and luminosity',
+};
+
 async function loadTexts() {
   const { db, doc, getDoc } = fb();
   const editor = document.getElementById('texts-editor');
+  const isEn   = adminLang === 'en';
   editor.innerHTML = '<p class="loading-cell">Laden…</p>';
 
-  let data = { ...TEXT_DEFAULTS };
+  const defaults = isEn ? TEXT_DEFAULTS_EN : TEXT_DEFAULTS;
+  let data = { ...defaults };
   try {
-    const snap = await getDoc(doc(db, 'settings', 'texts'));
-    if (snap.exists()) {
-      // Merge: Firestore values override defaults, but defaults fill missing keys
-      data = { ...TEXT_DEFAULTS, ...snap.data() };
-    }
+    const docId = isEn ? 'texts_en' : 'texts';
+    const snap  = await getDoc(doc(db, 'settings', docId));
+    if (snap.exists()) data = { ...defaults, ...snap.data() };
   } catch {}
 
-  // Render all keys as editable fields
-  editor.innerHTML = Object.entries(data).map(([key, value]) => {
-    const label    = TEXT_LABELS[key] || key;
-    const isLong   = String(value).length > 80 || String(value).includes('\n');
-    const inputHtml = isLong
-      ? `<textarea class="form-control" id="txt-${key}" rows="3">${value}</textarea>`
-      : `<input class="form-control" type="text" id="txt-${key}" value="${value.replace(/"/g, '&quot;')}">`;
-    return `
-      <div class="form-group" style="margin-bottom:1.25rem">
-        <label style="font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:0.4rem">
-          ${label}
-        </label>
-        ${inputHtml}
-      </div>`;
-  }).join('');
+  const langLabel = isEn ? 'English (EN)' : 'Nederlands (NL)';
+  editor.innerHTML = `
+    <div class="alert alert-info" style="margin-bottom:1.5rem">
+      U bewerkt nu de <strong>${langLabel}</strong> teksten.
+      Wissel via de NL/EN knop bovenin.
+    </div>` +
+    Object.entries(data).map(([key, value]) => {
+      const label   = TEXT_LABELS[key] || key;
+      const isLong  = String(value).length > 80 || String(value).includes('\n');
+      const safeVal = String(value).replace(/"/g, '&quot;');
+      const inputHtml = isLong
+        ? `<textarea class="form-control" id="txt-${key}" rows="3">${value}</textarea>`
+        : `<input class="form-control" type="text" id="txt-${key}" value="${safeVal}">`;
+      return `
+        <div class="form-group" style="margin-bottom:1.25rem">
+          <label style="font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:0.4rem">
+            ${label}
+          </label>
+          ${inputHtml}
+        </div>`;
+    }).join('');
 }
 
 async function saveTexts() {
   const { db, doc, setDoc } = fb();
   const editor = document.getElementById('texts-editor');
+  const isEn   = adminLang === 'en';
+  const docId  = isEn ? 'texts_en' : 'texts';
 
-  // Collect all current field values
   const data = {};
   editor.querySelectorAll('[id^="txt-"]').forEach(el => {
-    const key    = el.id.replace('txt-', '');
-    data[key]    = el.value.trim();
+    data[el.id.replace('txt-', '')] = el.value.trim();
   });
 
-  await setDoc(doc(db, 'settings', 'texts'), data, { merge: true });
-  showToast('Teksten opgeslagen.');
+  await setDoc(doc(db, 'settings', docId), data, { merge: true });
+  showToast(`Teksten (${isEn ? 'EN' : 'NL'}) opgeslagen.`);
 }
 
 window.loadTexts  = loadTexts;

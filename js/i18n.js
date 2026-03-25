@@ -38,7 +38,8 @@ export const translations = {
 
     // Atelier sectie
     'atelier.eyebrow':          'De kunstenaar aan het werk',
-    'atelier.title':            'Ambacht in een tijdperk van snelheid',
+    'atelier.title1':           'Ambacht in een',
+    'atelier.title2':           'tijdperk van snelheid',
     'atelier.body1':            'In het atelier ruikt het naar lijnzaadolie en terpentijn. Op een met gesso voorbereid linnen doek begint elk schilderij met een dunne imprimatura - een warme bruintint die het licht al van binnenuit laat gloeien voordat er ook maar een echte kleur op het doek zit.',
     'atelier.body2':            'W.H. Rodenhuis werkt in lagen, zoals de meesters van de Gouden Eeuw dat deden. Dode verf, kleuren, glacis. Het duurt soms weken voor een werk klaar is - en dat is precies de bedoeling. Geduld is de kern van het ambacht.',
     'atelier.chip1':            'Olieverf op linnen',
@@ -175,7 +176,8 @@ export const translations = {
 
     // Atelier section
     'atelier.eyebrow':          'The artist at work',
-    'atelier.title':            'Craftsmanship in an age of speed',
+    'atelier.title1':           'Craftsmanship in an',
+    'atelier.title2':           'age of speed',
     'atelier.body1':            'The studio smells of linseed oil and turpentine. On a gesso-prepared linen canvas, every painting begins with a thin imprimatura - a warm brown tone that makes the light glow from within before a single real colour touches the surface.',
     'atelier.body2':            'W.H. Rodenhuis works in layers, as the masters of the Golden Age did. Dead colour, glazes, scumbles. A work can take weeks to complete - and that is precisely the point. Patience is the heart of the craft.',
     'atelier.chip1':            'Oil on linen',

@@ -75,12 +75,10 @@ function toggleLang() {
   document.documentElement.lang = lang;
   applyTranslations();
 
-  // Re-apply Firestore texts when switching to NL
-  if (lang === 'nl') {
-    try { loadSiteTexts(); } catch {}
-  }
+  // Re-apply Firestore texts for new language
+  try { loadSiteTexts(); } catch {}
 
-  // Reload dynamic content in active language
+  // Reload active page data in new language
   const activePage = document.querySelector('.page.active');
   if (activePage?.id === 'page-gallery') renderGallery();
   if (activePage?.id === 'page-about')   loadAboutPage();
@@ -714,6 +712,8 @@ window.sendContact = sendContact;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OVER MIJ PAGINA
+// Bio in NL = bio1/bio2, bio in EN = bio1En/bio2En.
+// Foto's en e-mail zijn taaalonafhankelijk.
 // ─────────────────────────────────────────────────────────────────────────────
 async function loadAboutPage() {
   const { db, doc, getDoc } = fb();
@@ -722,25 +722,29 @@ async function loadAboutPage() {
     if (!snap.exists()) return;
     const data = snap.data();
 
+    // Portrait photo
     if (data.photoUrl) {
       document.getElementById('about-photo-wrap').innerHTML =
         `<img src="${data.photoUrl}" alt="W.H. Rodenhuis">`;
     }
-    if (data.bio1) {
-      const el = document.querySelector('[data-i18n="about.bio1"]');
-      if (el) el.textContent = data.bio1;
-    }
-    if (data.bio2) {
-      const el = document.querySelector('[data-i18n="about.bio2"]');
-      if (el) el.textContent = data.bio2;
-    }
+
+    // Bio: use language-appropriate fields
+    const bio1 = lang === 'en' ? (data.bio1En || data.bio1 || '') : (data.bio1 || '');
+    const bio2 = lang === 'en' ? (data.bio2En || data.bio2 || '') : (data.bio2 || '');
+    const bio1El = document.querySelector('[data-i18n="about.bio1"]');
+    const bio2El = document.querySelector('[data-i18n="about.bio2"]');
+    if (bio1El && bio1) bio1El.textContent = bio1;
+    if (bio2El && bio2) bio2El.textContent = bio2;
+
+    // Contact email
     if (data.email) {
       const el = document.getElementById('contact-email');
       if (el) { el.textContent = data.email; el.href = 'mailto:' + data.email; }
     }
-    if (data.atelierPhotoUrl) {
-      _applyAtelierPhoto(data.atelierPhotoUrl);
-    }
+
+    // Atelier photo
+    if (data.atelierPhotoUrl) _applyAtelierPhoto(data.atelierPhotoUrl);
+
   } catch {}
 }
 
@@ -751,34 +755,39 @@ function _applyAtelierPhoto(url) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SITE TEKSTEN (vanuit Firestore settings/texts)
+// SITE TEKSTEN (vanuit Firestore settings/texts of settings/texts_en)
 // Overschrijft data-i18n elementen met waarden die in admin zijn ingesteld.
-// Werkt alleen voor de NL-taal - EN-vertalingen blijven uit i18n.js komen.
+// NL lees uit 'texts', EN uit 'texts_en'. Valt terug op i18n.js als leeg.
 // ─────────────────────────────────────────────────────────────────────────────
 async function loadSiteTexts() {
   const { db, doc, getDoc } = fb();
   try {
-    const snap = await getDoc(doc(db, 'settings', 'texts'));
+    const docId = lang === 'en' ? 'texts_en' : 'texts';
+    const snap  = await getDoc(doc(db, 'settings', docId));
     if (!snap.exists()) return;
     const data = snap.data();
 
-    // Apply each text key to any element with matching data-i18n attribute
-    // Only applies when page is in Dutch (NL is the admin-editable language)
-    if (lang !== 'nl') return;
+    // Apply each saved text to matching data-i18n elements on the page
     Object.entries(data).forEach(([key, value]) => {
+      if (!value) return;
       document.querySelectorAll(`[data-i18n="${key}"]`).forEach(el => {
-        if (value) el.textContent = value;
+        el.textContent = value;
       });
     });
   } catch {}
 }
 
-async function _loadAtelierPhotoFromDb() {
+// Load about/atelier data on homepage startup (atelierPhoto + contact email)
+async function _loadHomeAboutData() {
   const { db, doc, getDoc } = fb();
   try {
     const snap = await getDoc(doc(db, 'settings', 'about'));
-    if (snap.exists() && snap.data().atelierPhotoUrl) {
-      _applyAtelierPhoto(snap.data().atelierPhotoUrl);
+    if (!snap.exists()) return;
+    const data = snap.data();
+    if (data.atelierPhotoUrl) _applyAtelierPhoto(data.atelierPhotoUrl);
+    if (data.email) {
+      const el = document.getElementById('contact-email');
+      if (el) { el.textContent = data.email; el.href = 'mailto:' + data.email; }
     }
   } catch {}
 }
@@ -793,7 +802,7 @@ document.addEventListener('DOMContentLoaded', () => {
       loadHero();
       loadFeatured();
       loadSiteTexts();
-      _loadAtelierPhotoFromDb();
+      _loadHomeAboutData();
     } catch {
       setTimeout(init, 500);
     }

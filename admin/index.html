@@ -171,6 +171,24 @@ h1,h2,h3,h4 { font-family: var(--ff-serif); font-weight: 400; line-height: 1.2; 
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   max-width: 160px;
 }
+.admin-lang-wrap {
+  display: flex; gap: 2px;
+  background: rgba(255,255,255,0.1);
+  border-radius: var(--r); padding: 2px;
+  flex-shrink: 0;
+}
+.admin-lang-btn {
+  font-size: 0.7rem; letter-spacing: 0.1em; font-weight: 500;
+  padding: 0.25rem 0.6rem; border-radius: 3px;
+  border: none; cursor: pointer; font-family: inherit;
+  color: rgba(245,240,232,0.55);
+  background: transparent; transition: all var(--trans);
+}
+.admin-lang-btn:hover { color: var(--linen); }
+.admin-lang-btn.active {
+  background: rgba(245,240,232,0.2);
+  color: var(--linen);
+}
 
 /* ─── DASHBOARD BODY ─── */
 .dashboard-body { padding: 2rem clamp(1rem,4vw,2.5rem); max-width: 1200px; }
@@ -346,6 +364,10 @@ tr:hover td { background: rgba(245,240,232,0.5); }
   <div class="dashboard-header">
     <div class="dashboard-brand">W.H. <span>Rodenhuis</span> - Beheer</div>
     <span class="user-chip" id="user-name"></span>
+    <div class="admin-lang-wrap">
+      <button class="admin-lang-btn active" id="admin-lang-nl" onclick="setAdminLang('nl')">NL</button>
+      <button class="admin-lang-btn"        id="admin-lang-en" onclick="setAdminLang('en')">EN</button>
+    </div>
     <button class="tab-btn active" onclick="showTab('paintings', this)">Schilderijen</button>
     <button class="tab-btn"        onclick="showTab('messages',  this)">Berichten</button>
     <button class="tab-btn"        onclick="showTab('about',     this)">Over mij</button>
@@ -397,11 +419,17 @@ tr:hover td { background: rgba(245,240,232,0.5); }
     <!-- ── Tab: Over mij ── -->
     <div class="tab-panel" id="tab-about">
       <div class="panel-toolbar">
-        <h2>Over mij pagina</h2>
+        <div>
+          <h2>Over mij pagina</h2>
+          <p style="font-size:0.85rem;color:var(--muted);margin-top:0.25rem" id="about-lang-note">
+            Huidige taal: <strong>Nederlands</strong> - gebruik de NL/EN knop bovenin om te wisselen.
+          </p>
+        </div>
         <button id="btn-save-about" class="btn btn-solid" onclick="saveAbout()">Opslaan</button>
       </div>
       <div class="about-panel">
 
+        <!-- Foto's: taaalonafhankelijk -->
         <div class="form-group">
           <label>Portretfoto uploaden (via Cloudinary)</label>
           <input type="file" id="about-photo-file" accept="image/*"
@@ -409,26 +437,26 @@ tr:hover td { background: rgba(245,240,232,0.5); }
             onchange="this.nextElementSibling.style.display='block';this.nextElementSibling.src=URL.createObjectURL(this.files[0])">
           <img id="about-photo-preview" class="about-photo-preview" src="" alt="Preview">
         </div>
-
         <div class="form-group">
           <label>Of: bestaande foto URL</label>
           <input class="form-control" type="text" id="about-photo-url" placeholder="https://res.cloudinary.com/…">
         </div>
 
         <div class="form-group">
-          <label>Biografie - alinea 1 (NL)</label>
-          <textarea class="form-control" id="about-bio1" rows="4"
-            placeholder="Eerste alinea over uzelf…"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Biografie - alinea 2 (NL)</label>
-          <textarea class="form-control" id="about-bio2" rows="4"
-            placeholder="Tweede alinea over uzelf…"></textarea>
-        </div>
-        <div class="form-group">
           <label>E-mailadres (weergegeven op contactpagina)</label>
-          <input class="form-control" type="email" id="about-email"
-            placeholder="info@whrodenhuis.nl">
+          <input class="form-control" type="email" id="about-email" placeholder="info@whrodenhuis.nl">
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0">
+
+        <!-- Taalafhankelijke velden -->
+        <div class="form-group">
+          <label id="about-bio1-label">Biografie - alinea 1</label>
+          <textarea class="form-control" id="about-bio1" rows="4" placeholder="Eerste alinea over uzelf…"></textarea>
+        </div>
+        <div class="form-group">
+          <label id="about-bio2-label">Biografie - alinea 2</label>
+          <textarea class="form-control" id="about-bio2" rows="4" placeholder="Tweede alinea over uzelf…"></textarea>
         </div>
 
         <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0">
