@@ -5,6 +5,7 @@
 export const translations = {
   nl: {
     // Navigatie
+    'nav.home':    'Home',
     'nav.gallery':  'Galerij',
     'nav.about':    'Over mij',
     'nav.contact':  'Contact',
@@ -89,6 +90,13 @@ export const translations = {
     'form.email':   'E-mailadres',
     'form.subject': 'Onderwerp',
     'form.message': 'Bericht',
+    'form.phone':   'Telefoonnummer',
+    'form.note':    'Opmerking (optioneel)',
+
+    // Winkelmandje aanvraag
+    'cart.contactinfo': 'Vul uw contactgegevens in zodat ik u kan bereiken.',
+    'cart.send':        'Verstuur aanvraag',
+    'btn.back':         'Terug',
 
     // Reviews
     'reviews.title':   'Beoordelingen',
@@ -115,6 +123,7 @@ export const translations = {
 
   en: {
     // Navigation
+    'nav.home':    'Home',
     'nav.gallery':  'Gallery',
     'nav.about':    'About',
     'nav.contact':  'Contact',
@@ -199,6 +208,13 @@ export const translations = {
     'form.email':   'Email address',
     'form.subject': 'Subject',
     'form.message': 'Message',
+    'form.phone':   'Phone number',
+    'form.note':    'Comment (optional)',
+
+    // Cart enquiry
+    'cart.contactinfo': 'Please fill in your contact details so I can get back to you.',
+    'cart.send':        'Send enquiry',
+    'btn.back':         'Back',
 
     // Reviews
     'reviews.title':   'Reviews',

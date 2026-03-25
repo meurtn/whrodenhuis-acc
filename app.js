@@ -185,11 +185,18 @@ window.doSearch = doSearch;
 async function loadHero() {
   const { db, collection, getDocs, query, where } = fb();
 
-  // Try featured first, fall back to all
-  const featSnap = await getDocs(query(collection(db, 'paintings'), where('featured', '==', true)));
+  // Try showInHero first, fall back to all paintings
+  const featSnap = await getDocs(query(collection(db, 'paintings'), where('showInHero', '==', true)));
   featSnap.forEach(d => heroSlides.push({ id: d.id, ...d.data() }));
 
-  if (heroSlides.length < 3) {
+  // Legacy fallback: paintings with featured=true but no showInHero field yet
+  if (!heroSlides.length) {
+    const legacySnap = await getDocs(query(collection(db, 'paintings'), where('featured', '==', true)));
+    legacySnap.forEach(d => heroSlides.push({ id: d.id, ...d.data() }));
+  }
+
+  // Final fallback: any paintings at all
+  if (heroSlides.length < 2) {
     heroSlides = [];
     const allSnap = await getDocs(collection(db, 'paintings'));
     allSnap.forEach(d => heroSlides.push({ id: d.id, ...d.data() }));
@@ -220,10 +227,19 @@ async function loadFeatured() {
   const { db, collection, getDocs, query, where } = fb();
   let paintings = [];
 
-  const featSnap = await getDocs(query(collection(db, 'paintings'), where('featured', '==', true)));
+  // Try showInFeatured first
+  const featSnap = await getDocs(query(collection(db, 'paintings'), where('showInFeatured', '==', true)));
   featSnap.forEach(d => paintings.push({ id: d.id, ...d.data() }));
 
-  if (paintings.length < 3) {
+  // Legacy fallback: paintings with featured=true but no showInFeatured field yet
+  if (!paintings.length) {
+    const legacySnap = await getDocs(query(collection(db, 'paintings'), where('featured', '==', true)));
+    legacySnap.forEach(d => paintings.push({ id: d.id, ...d.data() }));
+  }
+
+  // Final fallback: show first few paintings
+  if (paintings.length < 2) {
+    paintings = [];
     const allSnap = await getDocs(collection(db, 'paintings'));
     allSnap.forEach(d => { if (paintings.length < 6) paintings.push({ id: d.id, ...d.data() }); });
   }
@@ -569,8 +585,13 @@ function renderCart() {
   else                  countEl.classList.remove('visible');
 
   if (!cart.length) {
-    bodyEl.innerHTML      = `<div class="cart-empty">${t('cart.empty')}</div>`;
+    bodyEl.innerHTML       = `<div class="cart-empty">${t('cart.empty')}</div>`;
     footerEl.style.display = 'none';
+    // Reset to step 1 for next use
+    const s1 = document.getElementById('cart-step-1');
+    const s2 = document.getElementById('cart-step-2');
+    if (s1) s1.style.display = 'block';
+    if (s2) s2.style.display = 'none';
     return;
   }
 
@@ -589,32 +610,61 @@ function renderCart() {
   footerEl.style.display = 'block';
 }
 
+function showEnquiryForm() {
+  document.getElementById('cart-step-1').style.display = 'none';
+  document.getElementById('cart-step-2').style.display = 'block';
+  document.getElementById('eq-name').focus();
+}
+
+function hideEnquiryForm() {
+  document.getElementById('cart-step-2').style.display = 'none';
+  document.getElementById('cart-step-1').style.display = 'block';
+}
+
 async function sendEnquiry() {
   if (!cart.length) return;
-  const { db, collection, addDoc, serverTimestamp } = fb();
 
+  const name  = document.getElementById('eq-name').value.trim();
+  const email = document.getElementById('eq-email').value.trim();
+  const phone = document.getElementById('eq-phone').value.trim();
+  const note  = document.getElementById('eq-note').value.trim();
+
+  if (!name || !email) {
+    showToast(lang === 'nl' ? 'Naam en e-mailadres zijn verplicht.' : 'Name and email are required.');
+    return;
+  }
+
+  const { db, collection, addDoc, serverTimestamp } = fb();
   const titles = cart.map(p => titleFor(p)).join(', ');
   const total  = cart.reduce((sum, p) => sum + Number(p.price), 0);
 
   await addDoc(collection(db, 'messages'), {
     type:      'enquiry',
+    name,
+    email,
+    phone:     phone || null,
+    note:      note  || null,
     paintings: cart.map(p => p.id),
     titles,
     total,
+    read:      false,
     createdAt: serverTimestamp()
   });
 
   cart = [];
   renderCart();
   closeCart();
+  hideEnquiryForm();
   showToast(lang === 'nl' ? 'Uw aanvraag is verzonden!' : 'Your enquiry has been sent!');
 }
 
-window.toggleCart    = toggleCart;
-window.closeCart     = closeCart;
-window.addToCart     = addToCart;
-window.removeFromCart = removeFromCart;
-window.sendEnquiry   = sendEnquiry;
+window.toggleCart      = toggleCart;
+window.closeCart       = closeCart;
+window.addToCart       = addToCart;
+window.removeFromCart  = removeFromCart;
+window.sendEnquiry     = sendEnquiry;
+window.showEnquiryForm = showEnquiryForm;
+window.hideEnquiryForm = hideEnquiryForm;
 
 // currentPainting nodig in HTML onclick
 Object.defineProperty(window, 'currentPainting', {

@@ -210,7 +210,8 @@ async function loadPaintings() {
       <td>${p.year || '-'}</td>
       <td>${p.price ? formatPrice(p.price) : '-'}</td>
       <td><span class="status-badge status-${p.status || 'available'}">${statusLabel(p.status)}</span></td>
-      <td class="center">${p.featured ? '✓' : ''}</td>
+      <td class="center">${p.showInHero     ? '✓' : ''}</td>
+      <td class="center">${p.showInFeatured ? '✓' : ''}</td>
       <td>
         <button class="btn btn-sm" onclick="openModal('${p.id}')">Bewerken</button>
       </td>
@@ -260,9 +261,10 @@ function _clearModal() {
   ['pm-id','pm-title-nl','pm-title-en','pm-year','pm-price',
    'pm-size','pm-technique','pm-story-nl','pm-story-en','pm-tags']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
-  document.getElementById('pm-status').value   = 'available';
-  document.getElementById('pm-featured').value = 'false';
-  document.getElementById('pm-image').value    = '';
+  document.getElementById('pm-status').value          = 'available';
+  document.getElementById('pm-show-hero').checked     = false;
+  document.getElementById('pm-show-featured').checked = false;
+  document.getElementById('pm-image').value           = '';
   _setPreview(null);
   _resetProgress();
 }
@@ -282,8 +284,9 @@ async function _loadIntoModal(id) {
   document.getElementById('pm-story-nl').value   = p.storyNl   || '';
   document.getElementById('pm-story-en').value   = p.storyEn   || '';
   document.getElementById('pm-tags').value       = (p.tags || []).join(', ');
-  document.getElementById('pm-status').value     = p.status    || 'available';
-  document.getElementById('pm-featured').value   = String(!!p.featured);
+  document.getElementById('pm-status').value          = p.status    || 'available';
+  document.getElementById('pm-show-hero').checked     = !!p.showInHero;
+  document.getElementById('pm-show-featured').checked = !!p.showInFeatured;
 
   _currentImageUrl = p.imageUrl  || null;
   _currentPublicId  = p.publicId || null;
@@ -347,18 +350,24 @@ async function savePainting() {
     const tags = document.getElementById('pm-tags').value
       .split(',').map(t => t.trim()).filter(Boolean);
 
+    const showInHero     = document.getElementById('pm-show-hero').checked;
+    const showInFeatured = document.getElementById('pm-show-featured').checked;
+
     const data = {
-      titleNl:   document.getElementById('pm-title-nl').value.trim(),
-      titleEn:   document.getElementById('pm-title-en').value.trim(),
-      year:      document.getElementById('pm-year').value.trim(),
-      price:     Number(document.getElementById('pm-price').value) || 0,
-      size:      document.getElementById('pm-size').value.trim(),
-      technique: document.getElementById('pm-technique').value.trim(),
-      storyNl:   document.getElementById('pm-story-nl').value.trim(),
-      storyEn:   document.getElementById('pm-story-en').value.trim(),
+      titleNl:        document.getElementById('pm-title-nl').value.trim(),
+      titleEn:        document.getElementById('pm-title-en').value.trim(),
+      year:           document.getElementById('pm-year').value.trim(),
+      price:          Number(document.getElementById('pm-price').value) || 0,
+      size:           document.getElementById('pm-size').value.trim(),
+      technique:      document.getElementById('pm-technique').value.trim(),
+      storyNl:        document.getElementById('pm-story-nl').value.trim(),
+      storyEn:        document.getElementById('pm-story-en').value.trim(),
       tags,
-      status:    document.getElementById('pm-status').value,
-      featured:  document.getElementById('pm-featured').value === 'true',
+      status:         document.getElementById('pm-status').value,
+      showInHero,
+      showInFeatured,
+      // Keep legacy 'featured' field in sync for backwards compat
+      featured:       showInHero || showInFeatured,
       imageUrl,
       publicId,
       updatedAt: serverTimestamp()

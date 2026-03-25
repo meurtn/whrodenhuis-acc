@@ -355,6 +355,7 @@ tr:hover td { background: rgba(245,240,232,0.5); }
               <th>Jaar</th>
               <th>Prijs</th>
               <th>Status</th>
+              <th class="center">Hero</th>
               <th class="center">Uitgelicht</th>
               <th>Acties</th>
             </tr>
@@ -505,11 +506,17 @@ tr:hover td { background: rgba(245,240,232,0.5); }
         </select>
       </div>
       <div class="form-group">
-        <label>Uitgelicht op homepage</label>
-        <select class="form-control" id="pm-featured">
-          <option value="false">Nee</option>
-          <option value="true">Ja - toon in hero en uitgelicht-sectie</option>
-        </select>
+        <label>Weergave</label>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.25rem">
+          <label style="display:flex;align-items:center;gap:0.6rem;font-size:0.88rem;text-transform:none;letter-spacing:0;color:var(--ink);cursor:pointer">
+            <input type="checkbox" id="pm-show-hero" style="width:16px;height:16px;accent-color:var(--olive);cursor:pointer">
+            Toon in hero slideshow
+          </label>
+          <label style="display:flex;align-items:center;gap:0.6rem;font-size:0.88rem;text-transform:none;letter-spacing:0;color:var(--ink);cursor:pointer">
+            <input type="checkbox" id="pm-show-featured" style="width:16px;height:16px;accent-color:var(--olive);cursor:pointer">
+            Toon in uitgelicht-sectie
+          </label>
+        </div>
       </div>
     </div>
 
