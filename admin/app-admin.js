@@ -139,6 +139,7 @@ function showTab(tab, btn) {
 
   if (tab === 'messages') loadMessages();
   if (tab === 'about')    loadAbout();
+  if (tab === 'texts')    loadTexts();
 }
 window.showTab = showTab;
 
@@ -426,27 +427,41 @@ async function loadMessages() {
     return;
   }
 
-  list.innerHTML = msgs.map(m => `
+  list.innerHTML = msgs.map(m => {
+    const isEnquiry = m.type === 'enquiry';
+    const replySubject = isEnquiry
+      ? encodeURIComponent('Re: Aanvraag schilderijen')
+      : encodeURIComponent('Re: ' + (m.subject || 'Uw bericht'));
+    return `
     <div class="message-card ${m.read ? '' : 'unread'}">
       <div class="message-card-header">
         <div>
-          <strong>${m.type === 'enquiry' ? '📋 Aanvraag' : '✉ Contactbericht'}</strong>
+          <strong>${isEnquiry ? '📋 Aanvraag' : '✉ Contactbericht'}</strong>
           ${!m.read ? '<span class="new-badge">Nieuw</span>' : ''}
         </div>
-        <span class="msg-email">${m.email || ''}</span>
+        <span class="msg-date">${_formatDate(m.createdAt)}</span>
       </div>
-      <div class="message-meta">${m.name || '-'} · ${_formatDate(m.createdAt)}</div>
-      ${m.subject ? `<div class="message-subject">${m.subject}</div>` : ''}
-      <div class="message-body">${m.message || ('Schilderijen: ' + (m.titles || ''))}</div>
-      ${m.total ? `<div class="message-total">Totaal: ${formatPrice(m.total)}</div>` : ''}
+      <div class="message-details">
+        ${m.name    ? `<div class="message-detail-row"><span class="detail-label">Naam</span><span>${m.name}</span></div>` : ''}
+        ${m.email   ? `<div class="message-detail-row"><span class="detail-label">E-mail</span><a href="mailto:${m.email}">${m.email}</a></div>` : ''}
+        ${m.phone   ? `<div class="message-detail-row"><span class="detail-label">Telefoon</span><a href="tel:${m.phone}">${m.phone}</a></div>` : ''}
+        ${m.subject ? `<div class="message-detail-row"><span class="detail-label">Onderwerp</span><span>${m.subject}</span></div>` : ''}
+      </div>
+      ${isEnquiry && m.titles ? `
+        <div class="message-paintings">
+          <span class="detail-label">Werken</span>
+          <span>${m.titles}</span>
+          ${m.total ? `<span class="message-total">${formatPrice(m.total)}</span>` : ''}
+        </div>` : ''}
+      ${m.message ? `<div class="message-body">${m.message}</div>` : ''}
+      ${m.note    ? `<div class="message-body" style="font-style:italic;color:var(--muted)">Opmerking: ${m.note}</div>` : ''}
       <div class="message-actions">
-        <a class="btn btn-sm" href="mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject || 'Uw bericht')}">
-          Beantwoorden
-        </a>
+        ${m.email ? `<a class="btn btn-sm" href="mailto:${m.email}?subject=${replySubject}">Beantwoorden</a>` : ''}
         <button class="btn btn-sm btn-danger" onclick="deleteMessage('${m.id}')">Verwijderen</button>
         ${!m.read ? `<button class="btn btn-sm" onclick="markRead('${m.id}', this)">Markeer gelezen</button>` : ''}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function _formatDate(ts) {
@@ -482,33 +497,28 @@ async function loadAbout() {
     const snap = await getDoc(doc(db, 'settings', 'about'));
     if (!snap.exists()) return;
     const data = snap.data();
-    document.getElementById('about-photo-url').value = data.photoUrl || '';
-    document.getElementById('about-bio1').value      = data.bio1     || '';
-    document.getElementById('about-bio2').value      = data.bio2     || '';
-    document.getElementById('about-email').value     = data.email    || '';
+    document.getElementById('about-photo-url').value  = data.photoUrl       || '';
+    document.getElementById('about-bio1').value        = data.bio1            || '';
+    document.getElementById('about-bio2').value        = data.bio2            || '';
+    document.getElementById('about-email').value       = data.email           || '';
+    document.getElementById('atelier-photo-url').value = data.atelierPhotoUrl || '';
   } catch {}
 }
 
 async function saveAbout() {
   const { db, doc, setDoc } = fb();
   const saveBtn = document.getElementById('btn-save-about');
+  setLoading(saveBtn, true, 'Opslaan');
 
-  // Optioneel: foto uploaden via Cloudinary
-  const fileInput = document.getElementById('about-photo-file');
-  let photoUrl = document.getElementById('about-photo-url').value.trim();
-
-  if (fileInput?.files[0]) {
-    setLoading(saveBtn, true, 'Opslaan');
-    showToast('Foto uploaden…', 'info');
-    const result = await uploadToCloudinary(fileInput.files[0], () => {});
-    photoUrl = result.url;
-  }
+  const photoUrl       = await _resolvePhoto('about-photo-file',   'about-photo-url',   saveBtn);
+  const atelierPhotoUrl = await _resolvePhoto('atelier-photo-file', 'atelier-photo-url', saveBtn);
 
   const data = {
     photoUrl,
-    bio1:  document.getElementById('about-bio1').value.trim(),
-    bio2:  document.getElementById('about-bio2').value.trim(),
-    email: document.getElementById('about-email').value.trim()
+    bio1:           document.getElementById('about-bio1').value.trim(),
+    bio2:           document.getElementById('about-bio2').value.trim(),
+    email:          document.getElementById('about-email').value.trim(),
+    atelierPhotoUrl
   };
 
   await setDoc(doc(db, 'settings', 'about'), data, { merge: true });
@@ -516,8 +526,136 @@ async function saveAbout() {
   setLoading(saveBtn, false, 'Opslaan');
 }
 
+/** Upload a file from fileInputId, or return existing URL from urlInputId */
+async function _resolvePhoto(fileInputId, urlInputId, btn) {
+  const fileInput = document.getElementById(fileInputId);
+  const existingUrl = document.getElementById(urlInputId)?.value.trim() || '';
+  if (fileInput?.files[0]) {
+    setLoading(btn, true, 'Opslaan');
+    showToast('Foto uploaden…', 'info');
+    const result = await uploadToCloudinary(fileInput.files[0], () => {});
+    return result.url;
+  }
+  return existingUrl;
+}
+
 window.loadAbout = loadAbout;
 window.saveAbout = saveAbout;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TEKSTEN
+// Reads all fields from settings/texts and renders them as editable fields.
+// The field key is used as the label. Any new key added in Firestore
+// automatically appears here on next load - no code changes needed.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Human-readable labels for known keys. Unknown keys show the key itself.
+const TEXT_LABELS = {
+  'hero.eyebrow':         'Hero - bovenkopje (klein)',
+  'hero.title1':          'Hero - titel regel 1',
+  'hero.title2':          'Hero - titel regel 2 (cursief)',
+  'hero.sub':             'Hero - ondertitel',
+  'quote.text':           'Citaat (homepage)',
+  'footer.desc':          'Footer - beschrijving',
+  'contact.eyebrow':      'Contact - bovenkopje',
+  'contact.title':        'Contact - koptitel',
+  'contact.desc':         'Contact - beschrijving',
+  'contact.note':         'Contact - galerijtip',
+  'atelier.eyebrow':      'Atelier - bovenkopje',
+  'atelier.title':        'Atelier - koptitel',
+  'atelier.body1':        'Atelier - alinea 1',
+  'atelier.body2':        'Atelier - alinea 2',
+  'atelier.chip1':        'Atelier - chip 1 (techniek-label)',
+  'atelier.chip2':        'Atelier - chip 2',
+  'atelier.chip3':        'Atelier - chip 3',
+  'atelier.chip4':        'Atelier - chip 4',
+  'atelier.step1.title':  'Atelier - stap 1 naam',
+  'atelier.step1.desc':   'Atelier - stap 1 beschrijving',
+  'atelier.step2.title':  'Atelier - stap 2 naam',
+  'atelier.step2.desc':   'Atelier - stap 2 beschrijving',
+  'atelier.step3.title':  'Atelier - stap 3 naam',
+  'atelier.step3.desc':   'Atelier - stap 3 beschrijving',
+  'atelier.step4.title':  'Atelier - stap 4 naam',
+  'atelier.step4.desc':   'Atelier - stap 4 beschrijving',
+};
+
+const TEXT_DEFAULTS = {
+  'hero.eyebrow':         'Klassieke Schilderkunst · Olieverf op Doek',
+  'hero.title1':          'Schilderijen die',
+  'hero.title2':          'het licht bewaren',
+  'hero.sub':             'Een oeuvre van meer dan honderd werken in de traditie van de Hollandse Meesters. Elk doek vertelt een verhaal van licht, stilte en ambacht.',
+  'quote.text':           '"Licht is niet wat het schilderij verlicht - licht ís het schilderij."',
+  'footer.desc':          'Klassieke schilderkunst in de traditie van de Hollandse Meesters. Olieverf op doek, met aandacht voor licht, compositie en vakmanschap.',
+  'contact.eyebrow':      'In contact komen',
+  'contact.title':        'Interesse in een werk, of een opdracht?',
+  'contact.desc':         'Ik ga graag met u in gesprek over mijn werk, mogelijkheden voor aankoop of het realiseren van een persoonlijk schilderij in opdracht. Vul het formulier in en ik reageer binnen enkele dagen.',
+  'contact.note':         'Heeft u al een werk op het oog? Voeg het toe aan uw selectie vanuit de galerij voor een gerichte aanvraag.',
+  'atelier.eyebrow':      'De kunstenaar aan het werk',
+  'atelier.title':        'Ambacht in een tijdperk van snelheid',
+  'atelier.body1':        'In het atelier ruikt het naar lijnzaadolie en terpentijn. Op een met gesso voorbereid linnen doek begint elk schilderij met een dunne imprimatura - een warme bruintint die het licht al van binnenuit laat gloeien voordat er ook maar een echte kleur op het doek zit.',
+  'atelier.body2':        'W.H. Rodenhuis werkt in lagen, zoals de meesters van de Gouden Eeuw dat deden. Dode verf, kleuren, glacis. Het duurt soms weken voor een werk klaar is - en dat is precies de bedoeling. Geduld is de kern van het ambacht.',
+  'atelier.chip1':        'Olieverf op linnen',
+  'atelier.chip2':        'Klassieke lagentechniek',
+  'atelier.chip3':        'Hollandse Meesters',
+  'atelier.chip4':        'Licht & schaduw',
+  'atelier.step1.title':  'Imprimatura',
+  'atelier.step1.desc':   'Warme ondertoon die het licht stuurt',
+  'atelier.step2.title':  'Dode verf',
+  'atelier.step2.desc':   'Vorm en volume in grijstonen',
+  'atelier.step3.title':  'Kleuren',
+  'atelier.step3.desc':   'Rijke pigmenten, opgebouwd in lagen',
+  'atelier.step4.title':  'Glacis',
+  'atelier.step4.desc':   'Transparante afwerklagen voor diepte en glans',
+};
+
+async function loadTexts() {
+  const { db, doc, getDoc } = fb();
+  const editor = document.getElementById('texts-editor');
+  editor.innerHTML = '<p class="loading-cell">Laden…</p>';
+
+  let data = { ...TEXT_DEFAULTS };
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'texts'));
+    if (snap.exists()) {
+      // Merge: Firestore values override defaults, but defaults fill missing keys
+      data = { ...TEXT_DEFAULTS, ...snap.data() };
+    }
+  } catch {}
+
+  // Render all keys as editable fields
+  editor.innerHTML = Object.entries(data).map(([key, value]) => {
+    const label    = TEXT_LABELS[key] || key;
+    const isLong   = String(value).length > 80 || String(value).includes('\n');
+    const inputHtml = isLong
+      ? `<textarea class="form-control" id="txt-${key}" rows="3">${value}</textarea>`
+      : `<input class="form-control" type="text" id="txt-${key}" value="${value.replace(/"/g, '&quot;')}">`;
+    return `
+      <div class="form-group" style="margin-bottom:1.25rem">
+        <label style="font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:0.4rem">
+          ${label}
+        </label>
+        ${inputHtml}
+      </div>`;
+  }).join('');
+}
+
+async function saveTexts() {
+  const { db, doc, setDoc } = fb();
+  const editor = document.getElementById('texts-editor');
+
+  // Collect all current field values
+  const data = {};
+  editor.querySelectorAll('[id^="txt-"]').forEach(el => {
+    const key    = el.id.replace('txt-', '');
+    data[key]    = el.value.trim();
+  });
+
+  await setDoc(doc(db, 'settings', 'texts'), data, { merge: true });
+  showToast('Teksten opgeslagen.');
+}
+
+window.loadTexts  = loadTexts;
+window.saveTexts  = saveTexts;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // INITIALISATIE

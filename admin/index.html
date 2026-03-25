@@ -247,7 +247,7 @@ tr:hover td { background: rgba(245,240,232,0.5); }
 }
 .message-card.unread { border-left: 3px solid var(--terra); }
 .message-card-header {
-  display: flex; justify-content: space-between; margin-bottom: 0.4rem;
+  display: flex; justify-content: space-between; margin-bottom: 0.75rem;
   flex-wrap: wrap; gap: 0.5rem; align-items: flex-start;
 }
 .new-badge {
@@ -255,11 +255,28 @@ tr:hover td { background: rgba(245,240,232,0.5); }
   background: var(--terra); color: var(--linen);
   padding: 0.15rem 0.5rem; border-radius: 20px; margin-left: 0.5rem;
 }
-.msg-email { font-size: 0.8rem; color: var(--muted); }
-.message-meta { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.4rem; }
-.message-subject { font-size: 0.88rem; font-weight: 500; margin-bottom: 0.3rem; }
-.message-body { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
-.message-total { font-size: 0.88rem; color: var(--terra); margin-top: 0.4rem; }
+.msg-date { font-size: 0.78rem; color: var(--muted); }
+.message-details {
+  background: var(--linen); border-radius: var(--r);
+  padding: 0.65rem 0.85rem; margin-bottom: 0.85rem;
+  display: flex; flex-direction: column; gap: 0.3rem;
+}
+.message-detail-row {
+  display: flex; gap: 1rem; font-size: 0.85rem; align-items: baseline;
+}
+.detail-label {
+  font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); flex-shrink: 0; min-width: 72px;
+}
+.message-detail-row a { color: var(--olive); }
+.message-detail-row a:hover { text-decoration: underline; }
+.message-paintings {
+  display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;
+  font-size: 0.88rem; margin-bottom: 0.75rem;
+  padding: 0.5rem 0.85rem; background: var(--linen); border-radius: var(--r);
+}
+.message-body  { font-size: 0.9rem; color: var(--muted); line-height: 1.65; margin-bottom: 0.5rem; }
+.message-total { font-size: 0.88rem; color: var(--terra); font-weight: 500; }
 .message-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.9rem; }
 .empty-note { text-align: center; padding: 2.5rem; color: var(--muted); font-size: 0.9rem; }
 
@@ -332,6 +349,7 @@ tr:hover td { background: rgba(245,240,232,0.5); }
     <button class="tab-btn active" onclick="showTab('paintings', this)">Schilderijen</button>
     <button class="tab-btn"        onclick="showTab('messages',  this)">Berichten</button>
     <button class="tab-btn"        onclick="showTab('about',     this)">Over mij</button>
+    <button class="tab-btn"        onclick="showTab('texts',     this)">Teksten</button>
     <button class="tab-btn tab-logout" onclick="logout()">Uitloggen</button>
   </div>
 
@@ -413,9 +431,43 @@ tr:hover td { background: rgba(245,240,232,0.5); }
             placeholder="info@whrodenhuis.nl">
         </div>
 
+        <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0">
+
+        <h4 style="font-size:1rem;margin-bottom:1rem;font-family:var(--ff-serif)">Atelierfoto (homepage sectie)</h4>
+        <div class="form-group">
+          <label>Atelierfoto uploaden (via Cloudinary)</label>
+          <input type="file" id="atelier-photo-file" accept="image/*"
+            style="font-size:0.88rem;padding:0.3rem 0"
+            onchange="this.nextElementSibling.style.display='block';this.nextElementSibling.src=URL.createObjectURL(this.files[0])">
+          <img id="atelier-photo-preview" class="about-photo-preview" src="" alt="Preview">
+        </div>
+        <div class="form-group">
+          <label>Of: bestaande atelierfoto URL</label>
+          <input class="form-control" type="text" id="atelier-photo-url" placeholder="https://res.cloudinary.com/…">
+          <p class="hint">Aanbevolen formaat: liggend (landscape), bijv. 1200x900px.</p>
+        </div>
+
         <div class="alert alert-info" style="margin-top:0.5rem">
           Na opslaan is de tekst direct zichtbaar op de publieke website.
         </div>
+      </div>
+    </div>
+
+    <!-- ── Tab: Teksten ── -->
+    <div class="tab-panel" id="tab-texts">
+      <div class="panel-toolbar">
+        <div>
+          <h2>Teksten</h2>
+          <p style="font-size:0.85rem;color:var(--muted);margin-top:0.25rem">Aanpasbare teksten op de website. Wijzigingen zijn direct zichtbaar na opslaan.</p>
+        </div>
+        <button class="btn btn-solid" onclick="saveTexts()">Opslaan</button>
+      </div>
+      <div id="texts-editor" style="max-width:760px">
+        <p class="loading-cell">Laden…</p>
+      </div>
+      <div class="alert alert-info" style="max-width:760px;margin-top:1.25rem">
+        Teksten staan in Firestore onder <code>settings/texts</code>.
+        Nieuwe velden worden automatisch opgepikt zodra ze in Firestore bestaan.
       </div>
     </div>
 

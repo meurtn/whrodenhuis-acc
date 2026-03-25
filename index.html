@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>W.H. Rodenhuis - Klassieke Schilderkunst</title>
+  <title>W.H. Rodenhuis - Schilderkunst</title>
   <meta name="description" content="Originele klassieke schilderijen van W.H. Rodenhuis. Olieverf op doek, in de traditie van de Hollandse Meesters.">
-  <meta property="og:title"       content="W.H. Rodenhuis - Klassieke Schilderkunst">
+  <meta property="og:title"       content="W.H. Rodenhuis - Schilderkunst">
   <meta property="og:description" content="Olieverf op doek in de traditie van de Hollandse Meesters.">
   <meta property="og:type"        content="website">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -161,16 +162,84 @@
           <span class="hero-stat-num">30+</span>
           <span class="hero-stat-label" data-i18n="stat.years">Jaar ervaring</span>
         </div>
-        <div class="hero-stat">
-          <span class="hero-stat-num" id="stat-sold">-</span>
-          <span class="hero-stat-label" data-i18n="stat.sold">Verkocht</span>
-        </div>
       </div>
     </div>
 
     <!-- Scrolling thumbnail strip -->
     <div class="hero-strip-wrap" aria-hidden="true">
       <div class="hero-strip" id="hero-strip"></div>
+    </div>
+  </section>
+
+  <!-- De kunstenaar aan het werk -->
+  <section class="section atelier-section">
+    <div class="wrap">
+      <div class="atelier-grid">
+
+        <!-- Foto links -->
+        <div class="atelier-img-wrap">
+          <div class="atelier-img-inner" id="atelier-img-inner">
+            <!-- Placeholder tot atelierfoto is ingesteld in admin -->
+            <div class="atelier-placeholder">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="6" y="10" width="36" height="28" rx="2"/>
+                <circle cx="24" cy="22" r="6"/>
+                <path d="M6 34l9-8 7 6 5-4 15 10"/>
+              </svg>
+              <span data-i18n="atelier.photo.placeholder">Atelierfoto wordt hier getoond</span>
+            </div>
+          </div>
+          <!-- Techniek-chips -->
+          <div class="atelier-chips">
+            <span class="atelier-chip" data-i18n="atelier.chip1">Olieverf op linnen</span>
+            <span class="atelier-chip" data-i18n="atelier.chip2">Klassieke lagentechniek</span>
+            <span class="atelier-chip" data-i18n="atelier.chip3">Hollandse Meesters</span>
+            <span class="atelier-chip" data-i18n="atelier.chip4">Licht &amp; schaduw</span>
+          </div>
+        </div>
+
+        <!-- Tekst rechts -->
+        <div class="atelier-text">
+          <span class="hero-eyebrow" data-i18n="atelier.eyebrow">De kunstenaar aan het werk</span>
+          <h2 data-i18n="atelier.title">Ambacht in een tijdperk van snelheid</h2>
+          <p data-i18n="atelier.body1">In het atelier ruikt het naar lijnzaadolie en terpentijn. Op een met gesso voorbereid linnen doek begint elk schilderij met een dunne imprimatura - een warme bruintint die het licht al van binnenuit laat gloeien voordat er ook maar een echte kleur op het doek zit.</p>
+          <p data-i18n="atelier.body2">W.H. Rodenhuis werkt in lagen, zoals de meesters van de Gouden Eeuw dat deden. Dode verf, kleuren, glacis. Het duurt soms weken voor een werk klaar is - en dat is precies de bedoeling. Geduld is de kern van het ambacht.</p>
+
+          <div class="atelier-process">
+            <div class="atelier-step">
+              <span class="atelier-step-num">01</span>
+              <div>
+                <strong data-i18n="atelier.step1.title">Imprimatura</strong>
+                <p data-i18n="atelier.step1.desc">Warme ondertoon die het licht stuurt</p>
+              </div>
+            </div>
+            <div class="atelier-step">
+              <span class="atelier-step-num">02</span>
+              <div>
+                <strong data-i18n="atelier.step2.title">Dode verf</strong>
+                <p data-i18n="atelier.step2.desc">Vorm en volume in grijstonen</p>
+              </div>
+            </div>
+            <div class="atelier-step">
+              <span class="atelier-step-num">03</span>
+              <div>
+                <strong data-i18n="atelier.step3.title">Kleuren</strong>
+                <p data-i18n="atelier.step3.desc">Rijke pigmenten, opgebouwd in lagen</p>
+              </div>
+            </div>
+            <div class="atelier-step">
+              <span class="atelier-step-num">04</span>
+              <div>
+                <strong data-i18n="atelier.step4.title">Glacis</strong>
+                <p data-i18n="atelier.step4.desc">Transparante afwerklagen voor diepte en glans</p>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn" onclick="showPage('about')" data-i18n="btn.about" style="margin-top:2rem">Mijn verhaal</button>
+        </div>
+
+      </div>
     </div>
   </section>
 

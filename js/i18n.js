@@ -35,6 +35,25 @@ export const translations = {
 
     // Secties
     'section.featured': 'Uitgelicht',
+
+    // Atelier sectie
+    'atelier.eyebrow':          'De kunstenaar aan het werk',
+    'atelier.title':            'Ambacht in een tijdperk van snelheid',
+    'atelier.body1':            'In het atelier ruikt het naar lijnzaadolie en terpentijn. Op een met gesso voorbereid linnen doek begint elk schilderij met een dunne imprimatura - een warme bruintint die het licht al van binnenuit laat gloeien voordat er ook maar een echte kleur op het doek zit.',
+    'atelier.body2':            'W.H. Rodenhuis werkt in lagen, zoals de meesters van de Gouden Eeuw dat deden. Dode verf, kleuren, glacis. Het duurt soms weken voor een werk klaar is - en dat is precies de bedoeling. Geduld is de kern van het ambacht.',
+    'atelier.chip1':            'Olieverf op linnen',
+    'atelier.chip2':            'Klassieke lagentechniek',
+    'atelier.chip3':            'Hollandse Meesters',
+    'atelier.chip4':            'Licht & schaduw',
+    'atelier.step1.title':      'Imprimatura',
+    'atelier.step1.desc':       'Warme ondertoon die het licht stuurt',
+    'atelier.step2.title':      'Dode verf',
+    'atelier.step2.desc':       'Vorm en volume in grijstonen',
+    'atelier.step3.title':      'Kleuren',
+    'atelier.step3.desc':       'Rijke pigmenten, opgebouwd in lagen',
+    'atelier.step4.title':      'Glacis',
+    'atelier.step4.desc':       'Transparante afwerklagen voor diepte en glans',
+    'atelier.photo.placeholder':'Atelierfoto wordt hier getoond',
     'quote.text':       '"Licht is niet wat het schilderij verlicht - licht ís het schilderij."',
 
     // Footer
@@ -153,6 +172,25 @@ export const translations = {
 
     // Sections
     'section.featured': 'Featured works',
+
+    // Atelier section
+    'atelier.eyebrow':          'The artist at work',
+    'atelier.title':            'Craftsmanship in an age of speed',
+    'atelier.body1':            'The studio smells of linseed oil and turpentine. On a gesso-prepared linen canvas, every painting begins with a thin imprimatura - a warm brown tone that makes the light glow from within before a single real colour touches the surface.',
+    'atelier.body2':            'W.H. Rodenhuis works in layers, as the masters of the Golden Age did. Dead colour, glazes, scumbles. A work can take weeks to complete - and that is precisely the point. Patience is the heart of the craft.',
+    'atelier.chip1':            'Oil on linen',
+    'atelier.chip2':            'Classical layering technique',
+    'atelier.chip3':            'Dutch Masters tradition',
+    'atelier.chip4':            'Light & shadow',
+    'atelier.step1.title':      'Imprimatura',
+    'atelier.step1.desc':       'Warm undertone that guides the light',
+    'atelier.step2.title':      'Dead colour',
+    'atelier.step2.desc':       'Form and volume in grey tones',
+    'atelier.step3.title':      'Colour',
+    'atelier.step3.desc':       'Rich pigments, built up in layers',
+    'atelier.step4.title':      'Glazes',
+    'atelier.step4.desc':       'Transparent finishing layers for depth and luminosity',
+    'atelier.photo.placeholder':'Studio photo will appear here',
     'quote.text':       '"Light is not what illuminates the painting - light is the painting."',
 
     // Footer

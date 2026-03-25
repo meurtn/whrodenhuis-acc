@@ -670,6 +670,166 @@ h4 { font-size: 1.15rem; }
 .review-text   { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
 
 /* -----------------------------------------------------------------------------
+   16b. ATELIER SECTIE - De kunstenaar aan het werk
+----------------------------------------------------------------------------- */
+.atelier-section {
+  background: var(--canvas);
+  border-top: 1px solid var(--border);
+}
+
+.atelier-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: start;
+}
+
+/* Left: photo + chips */
+.atelier-img-wrap { position: sticky; top: calc(var(--nav-h) + 2rem); }
+
+.atelier-img-inner {
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: var(--linen-dark);
+  aspect-ratio: 4 / 5;
+  position: relative;
+}
+
+.atelier-img-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.atelier-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.atelier-placeholder svg {
+  width: 56px;
+  height: 56px;
+  opacity: 0.35;
+  stroke: var(--muted);
+}
+
+.atelier-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+}
+
+.atelier-chip {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  padding: 0.32rem 0.85rem;
+  border: 1px solid var(--border-md);
+  border-radius: 20px;
+  color: var(--muted);
+  background: var(--canvas);
+  transition: all var(--trans);
+}
+
+.atelier-chip:hover {
+  border-color: var(--olive);
+  color: var(--olive);
+  background: var(--linen);
+}
+
+/* Right: text */
+.atelier-text h2 {
+  margin-bottom: 1.25rem;
+  margin-top: 0.35rem;
+}
+
+.atelier-text p {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.82;
+  margin-bottom: 1rem;
+}
+
+/* Process steps */
+.atelier-process {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin-top: 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.atelier-step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  transition: background var(--trans);
+}
+
+.atelier-step:hover { background: var(--linen); }
+
+/* Remove right border from even steps, bottom border from last two */
+.atelier-step:nth-child(2n)   { border-right: none; }
+.atelier-step:nth-child(3),
+.atelier-step:nth-child(4)    { border-bottom: none; }
+
+.atelier-step-num {
+  font-family: var(--ff-serif);
+  font-size: 1.5rem;
+  color: var(--terra);
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.atelier-step strong {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+  color: var(--ink);
+}
+
+.atelier-step p {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .atelier-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .atelier-img-wrap { position: relative; top: 0; }
+  .atelier-img-inner { aspect-ratio: 16 / 9; }
+}
+
+@media (max-width: 640px) {
+  .atelier-process { grid-template-columns: 1fr; }
+  .atelier-step:nth-child(2n) { border-right: none; }
+  .atelier-step:nth-child(3)  { border-bottom: 1px solid var(--border); }
+  .atelier-step:last-child    { border-bottom: none; }
+}
+
+/* -----------------------------------------------------------------------------
    17. OVER MIJ
 ----------------------------------------------------------------------------- */
 .about-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 4.5rem; align-items: start; }

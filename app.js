@@ -71,12 +71,16 @@ function showToast(msg) {
 function toggleLang() {
   lang = lang === 'nl' ? 'en' : 'nl';
   setLang(lang);
-  // Button shows the CURRENT language (NL when in Dutch, EN when in English)
   document.getElementById('lang-btn').textContent = lang === 'nl' ? 'NL' : 'EN';
   document.documentElement.lang = lang;
   applyTranslations();
 
-  // Herlaad dynamische content in de actieve taal
+  // Re-apply Firestore texts when switching to NL
+  if (lang === 'nl') {
+    try { loadSiteTexts(); } catch {}
+  }
+
+  // Reload dynamic content in active language
   const activePage = document.querySelector('.page.active');
   if (activePage?.id === 'page-gallery') renderGallery();
   if (activePage?.id === 'page-about')   loadAboutPage();
@@ -716,7 +720,6 @@ async function loadAboutPage() {
   try {
     const snap = await getDoc(doc(db, 'settings', 'about'));
     if (!snap.exists()) return;
-
     const data = snap.data();
 
     if (data.photoUrl) {
@@ -724,19 +727,60 @@ async function loadAboutPage() {
         `<img src="${data.photoUrl}" alt="W.H. Rodenhuis">`;
     }
     if (data.bio1) {
-      const bio1El = document.querySelector('[data-i18n="about.bio1"]');
-      if (bio1El) bio1El.textContent = data.bio1;
+      const el = document.querySelector('[data-i18n="about.bio1"]');
+      if (el) el.textContent = data.bio1;
     }
     if (data.bio2) {
-      const bio2El = document.querySelector('[data-i18n="about.bio2"]');
-      if (bio2El) bio2El.textContent = data.bio2;
+      const el = document.querySelector('[data-i18n="about.bio2"]');
+      if (el) el.textContent = data.bio2;
     }
     if (data.email) {
-      document.getElementById('contact-email').textContent = data.email;
+      const el = document.getElementById('contact-email');
+      if (el) { el.textContent = data.email; el.href = 'mailto:' + data.email; }
     }
-  } catch (e) {
-    // Nog geen about-document - standaardteksten blijven zichtbaar
-  }
+    if (data.atelierPhotoUrl) {
+      _applyAtelierPhoto(data.atelierPhotoUrl);
+    }
+  } catch {}
+}
+
+function _applyAtelierPhoto(url) {
+  const wrap = document.getElementById('atelier-img-inner');
+  if (!wrap) return;
+  wrap.innerHTML = `<img src="${url}" alt="W.H. Rodenhuis in het atelier" loading="lazy">`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SITE TEKSTEN (vanuit Firestore settings/texts)
+// Overschrijft data-i18n elementen met waarden die in admin zijn ingesteld.
+// Werkt alleen voor de NL-taal - EN-vertalingen blijven uit i18n.js komen.
+// ─────────────────────────────────────────────────────────────────────────────
+async function loadSiteTexts() {
+  const { db, doc, getDoc } = fb();
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'texts'));
+    if (!snap.exists()) return;
+    const data = snap.data();
+
+    // Apply each text key to any element with matching data-i18n attribute
+    // Only applies when page is in Dutch (NL is the admin-editable language)
+    if (lang !== 'nl') return;
+    Object.entries(data).forEach(([key, value]) => {
+      document.querySelectorAll(`[data-i18n="${key}"]`).forEach(el => {
+        if (value) el.textContent = value;
+      });
+    });
+  } catch {}
+}
+
+async function _loadAtelierPhotoFromDb() {
+  const { db, doc, getDoc } = fb();
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'about'));
+    if (snap.exists() && snap.data().atelierPhotoUrl) {
+      _applyAtelierPhoto(snap.data().atelierPhotoUrl);
+    }
+  } catch {}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -748,6 +792,8 @@ document.addEventListener('DOMContentLoaded', () => {
       fb();
       loadHero();
       loadFeatured();
+      loadSiteTexts();
+      _loadAtelierPhotoFromDb();
     } catch {
       setTimeout(init, 500);
     }
