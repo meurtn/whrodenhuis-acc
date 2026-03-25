@@ -108,47 +108,40 @@
 <main class="page active" id="page-home">
 
   <section id="hero" aria-label="Welkom">
-    <div class="hero-text wrap" style="max-width:none">
-      <span class="hero-eyebrow fade-up" data-i18n="hero.eyebrow">Klassieke Schilderkunst · Olieverf op Doek</span>
-      <h1 class="fade-up delay-1">
-        <span data-i18n="hero.title1">Schilderijen die</span><br>
-        <em data-i18n="hero.title2">het licht bewaren</em>
-      </h1>
-      <p class="fade-up delay-2" data-i18n="hero.sub">
-        Een oeuvre van meer dan honderd werken in de traditie van de Hollandse Meesters. Elk doek vertelt een verhaal van licht, stilte en ambacht.
-      </p>
-      <div class="hero-actions fade-up delay-3">
-        <button class="btn btn-solid" onclick="showPage('gallery')" data-i18n="btn.gallery">Bekijk de galerij</button>
-        <button class="btn"           onclick="showPage('about')"   data-i18n="btn.about">Mijn verhaal</button>
+    <div class="wrap hero-inner">
+      <div class="hero-text">
+        <span class="hero-eyebrow fade-up" data-i18n="hero.eyebrow">Klassieke Schilderkunst · Olieverf op Doek</span>
+        <h1 class="fade-up delay-1">
+          <span data-i18n="hero.title1">Schilderijen die</span><br>
+          <em data-i18n="hero.title2">het licht bewaren</em>
+        </h1>
+        <p class="fade-up delay-2" data-i18n="hero.sub">
+          Een oeuvre van meer dan honderd werken in de traditie van de Hollandse Meesters. Elk doek vertelt een verhaal van licht, stilte en ambacht.
+        </p>
+        <div class="hero-actions fade-up delay-3">
+          <button class="btn btn-solid" onclick="showPage('gallery')" data-i18n="btn.gallery">Bekijk de galerij</button>
+          <button class="btn"           onclick="showPage('about')"   data-i18n="btn.about">Mijn verhaal</button>
+        </div>
+      </div>
+      <div class="hero-stats fade-up delay-4">
+        <div class="hero-stat">
+          <span class="hero-stat-num" id="stat-paintings">100+</span>
+          <span class="hero-stat-label" data-i18n="stat.paintings">Schilderijen</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">30+</span>
+          <span class="hero-stat-label" data-i18n="stat.years">Jaar ervaring</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num" id="stat-sold">-</span>
+          <span class="hero-stat-label" data-i18n="stat.sold">Verkocht</span>
+        </div>
       </div>
     </div>
-    <div class="hero-visual" aria-hidden="true">
-      <div class="hero-slideshow" id="hero-slideshow"></div>
-      <div class="hero-slide-dots" id="hero-dots"></div>
-    </div>
-  </section>
 
-  <!-- Statistieken -->
-  <section class="stats-section">
-    <div class="wrap">
-      <div class="stat-strip">
-        <div class="stat-item">
-          <div class="stat-num" id="stat-paintings">100+</div>
-          <div class="stat-label" data-i18n="stat.paintings">Schilderijen</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">30+</div>
-          <div class="stat-label" data-i18n="stat.years">Jaar ervaring</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num" id="stat-sold">-</div>
-          <div class="stat-label" data-i18n="stat.sold">Verkocht</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">NL</div>
-          <div class="stat-label" data-i18n="stat.origin">Herkomst</div>
-        </div>
-      </div>
+    <!-- Scrolling thumbnail strip -->
+    <div class="hero-strip-wrap" aria-hidden="true">
+      <div class="hero-strip" id="hero-strip"></div>
     </div>
   </section>
 
@@ -212,9 +205,21 @@
 <div class="page page-inner" id="page-gallery">
   <section class="section">
     <div class="wrap">
-      <div class="gallery-header">
-        <h2 data-i18n="gallery.title">Galerij</h2>
-        <p class="gallery-count" id="gallery-count"></p>
+      <div class="gallery-toolbar">
+        <div>
+          <h2 data-i18n="gallery.title">Galerij</h2>
+          <p class="gallery-count" id="gallery-count"></p>
+        </div>
+        <div class="gallery-sort">
+          <label class="sort-label" for="gallery-sort-select" data-i18n="gallery.sortby">Sorteren op</label>
+          <select id="gallery-sort-select" class="sort-select" onchange="sortGallery(this.value)">
+            <option value="default" data-i18n="sort.default">Standaard</option>
+            <option value="year-desc" data-i18n="sort.year-desc">Jaar (nieuw-oud)</option>
+            <option value="year-asc" data-i18n="sort.year-asc">Jaar (oud-nieuw)</option>
+            <option value="price-asc" data-i18n="sort.price-asc">Prijs (laag-hoog)</option>
+            <option value="price-desc" data-i18n="sort.price-desc">Prijs (hoog-laag)</option>
+          </select>
+        </div>
       </div>
       <div class="filters" id="gallery-filters">
         <button class="filter-chip active" data-filter="all" onclick="filterGallery('all')" data-i18n="filter.all">Alles</button>
@@ -248,8 +253,13 @@
         <div class="about-text">
           <span class="hero-eyebrow" data-i18n="about.eyebrow">Over de kunstenaar</span>
           <h2>W.H. Rodenhuis</h2>
-          <p data-i18n="about.bio1">W.H. Rodenhuis is een Nederlandse schilder die werkt in de traditie van de zeventiende-eeuwse Hollandse Meesters.</p>
-          <p data-i18n="about.bio2">Zijn werk kenmerkt zich door een tijdloze rust - stillevens, landschappen en figuurstudies.</p>
+          <p data-i18n="about.bio1">W.H. Rodenhuis is een Nederlandse schilder die werkt in de traditie van de zeventiende-eeuwse Hollandse Meesters. Met olieverf op linnen doek bouwt hij composities op die rijke texturen en genuanceerd lichtgebruik combineren.</p>
+          <p data-i18n="about.bio2">Zijn werk kenmerkt zich door een tijdloze rust - stillevens, landschappen en figuurstudies die de vergankelijkheid van het moment vastleggen in een permanente vorm.</p>
+
+          <blockquote class="about-quote">
+            <p data-i18n="quote.text">"Licht is niet wat het schilderij verlicht - licht ís het schilderij."</p>
+          </blockquote>
+
           <div class="technique-grid">
             <div class="technique-card">
               <h4 data-i18n="tech.medium">Medium</h4>
@@ -265,11 +275,12 @@
             </div>
             <div class="technique-card">
               <h4 data-i18n="tech.size">Formaten</h4>
-              <p data-i18n="tech.size.desc">Van intiem klein (20×25 cm) tot groot formaat (100×120 cm).</p>
+              <p data-i18n="tech.size.desc">Van intiem klein (20x25 cm) tot groot formaat (100x120 cm).</p>
             </div>
           </div>
-          <div style="margin-top:1.5rem">
-            <button class="btn btn-solid" onclick="showPage('contact')" data-i18n="btn.contact">Neem contact op</button>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:2rem">
+            <button class="btn btn-solid" onclick="showPage('gallery')" data-i18n="btn.gallery">Bekijk de galerij</button>
+            <button class="btn" onclick="showPage('contact')" data-i18n="btn.contact">Neem contact op</button>
           </div>
         </div>
       </div>
@@ -296,35 +307,45 @@
         <div class="contact-info">
           <span class="hero-eyebrow" data-i18n="contact.eyebrow">In contact komen</span>
           <h3 data-i18n="contact.title">Interesse in een werk, of een opdracht?</h3>
-          <p data-i18n="contact.desc">Ik ga graag met u in gesprek over mijn werk, mogelijkheden voor aankoop of het realiseren van een persoonlijk schilderij in opdracht.</p>
-          <div class="contact-detail">
-            <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
-            <span id="contact-email">info@whrodenhuis.nl</span>
+          <p data-i18n="contact.desc">Ik ga graag met u in gesprek over mijn werk, mogelijkheden voor aankoop of het realiseren van een persoonlijk schilderij in opdracht. Vul het formulier in en ik reageer binnen enkele dagen.</p>
+          <div class="contact-details">
+            <div class="contact-detail">
+              <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+              <a id="contact-email" href="mailto:info@whrodenhuis.nl">info@whrodenhuis.nl</a>
+            </div>
+            <div class="contact-detail">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 018 8c0 5.5-8 14-8 14S4 15.5 4 10a8 8 0 018-8z"/></svg>
+              <span>Nederland</span>
+            </div>
           </div>
-          <div class="contact-detail">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 018 8c0 5.5-8 14-8 14S4 15.5 4 10a8 8 0 018-8z"/></svg>
-            <span>Nederland</span>
+          <div class="contact-aside">
+            <p data-i18n="contact.note">Heeft u al een werk op het oog? Voeg het toe aan uw selectie vanuit de galerij voor een gerichte aanvraag.</p>
+            <button class="btn btn-sm" onclick="showPage('gallery')" data-i18n="btn.gallery">Naar de galerij</button>
           </div>
         </div>
         <div class="contact-form-wrap">
-          <div class="form-group">
-            <label for="cf-name" data-i18n="form.name">Naam</label>
-            <input class="form-control" type="text" id="cf-name" placeholder="Uw naam">
+          <div id="contact-form-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="cf-name" data-i18n="form.name">Naam</label>
+                <input class="form-control" type="text" id="cf-name" placeholder="Uw naam" autocomplete="name">
+              </div>
+              <div class="form-group">
+                <label for="cf-email" data-i18n="form.email">E-mailadres</label>
+                <input class="form-control" type="email" id="cf-email" placeholder="uw@email.nl" autocomplete="email">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="cf-subject" data-i18n="form.subject">Onderwerp</label>
+              <input class="form-control" type="text" id="cf-subject" placeholder="Informatie / aanvraag / opdracht">
+            </div>
+            <div class="form-group">
+              <label for="cf-message" data-i18n="form.message">Bericht</label>
+              <textarea class="form-control" id="cf-message" rows="6" placeholder="Uw bericht…"></textarea>
+            </div>
+            <button class="btn btn-solid" style="width:100%" onclick="sendContact()" data-i18n="btn.send">Verstuur bericht</button>
+            <div id="cf-status" style="margin-top:1rem" role="status" aria-live="polite"></div>
           </div>
-          <div class="form-group">
-            <label for="cf-email" data-i18n="form.email">E-mailadres</label>
-            <input class="form-control" type="email" id="cf-email" placeholder="uw@email.nl">
-          </div>
-          <div class="form-group">
-            <label for="cf-subject" data-i18n="form.subject">Onderwerp</label>
-            <input class="form-control" type="text" id="cf-subject" placeholder="Informatie / aanvraag / opdracht">
-          </div>
-          <div class="form-group">
-            <label for="cf-message" data-i18n="form.message">Bericht</label>
-            <textarea class="form-control" id="cf-message" rows="5" placeholder="Uw bericht…"></textarea>
-          </div>
-          <button class="btn btn-solid" style="width:100%" onclick="sendContact()" data-i18n="btn.send">Verstuur bericht</button>
-          <div id="cf-status" style="margin-top:1rem" role="status" aria-live="polite"></div>
         </div>
       </div>
     </div>
@@ -344,50 +365,87 @@
      LIGHTBOX - Schilderijdetail + reviews
 ════════════════════════════════════════════════════════════════════ -->
 <div id="lightbox" role="dialog" aria-modal="true" aria-label="Schilderijdetail">
+
+  <!-- Prev / next keyboard + click -->
+  <button class="lb-nav lb-prev" onclick="navigateLightbox(-1)" aria-label="Vorig schilderij">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <button class="lb-nav lb-next" onclick="navigateLightbox(1)" aria-label="Volgend schilderij">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
+  </button>
+
   <div class="lightbox-inner">
-    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Sluiten">✕</button>
-    <div class="lightbox-img">
+
+    <!-- Left: full painting -->
+    <div class="lightbox-img-wrap">
       <img id="lb-img" src="" alt="">
     </div>
-    <div class="lightbox-info">
-      <h2 id="lb-title"></h2>
-      <p class="muted small" id="lb-year"></p>
-      <div class="lightbox-price" id="lb-price"></div>
-      <div class="lightbox-specs" id="lb-specs"></div>
-      <p class="lightbox-story" id="lb-story"></p>
-      <div class="painting-tags" id="lb-tags"></div>
-      <div class="lightbox-actions" id="lb-actions"></div>
 
-      <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0">
+    <!-- Right: info panel -->
+    <div class="lightbox-panel">
+      <button class="lightbox-close" onclick="closeLightbox()" aria-label="Sluiten">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
 
-      <h4 style="margin-bottom:0.75rem" data-i18n="reviews.title">Beoordelingen</h4>
-      <div id="lb-reviews"></div>
+      <div class="lightbox-panel-scroll">
 
-      <div class="review-form">
-        <h4 data-i18n="reviews.leave">Laat een beoordeling achter</h4>
-        <div class="form-group">
-          <label for="rv-name" data-i18n="form.name">Naam</label>
-          <input class="form-control" type="text" id="rv-name" placeholder="Uw naam">
+        <!-- Title block -->
+        <div class="lb-title-block">
+          <h2 id="lb-title"></h2>
+          <div class="lightbox-price" id="lb-price"></div>
         </div>
-        <div class="form-group">
-          <label data-i18n="reviews.rating">Beoordeling</label>
-          <div class="stars-input" id="stars-input">
-            <span class="star-btn" data-v="1" tabindex="0">★</span>
-            <span class="star-btn" data-v="2" tabindex="0">★</span>
-            <span class="star-btn" data-v="3" tabindex="0">★</span>
-            <span class="star-btn" data-v="4" tabindex="0">★</span>
-            <span class="star-btn" data-v="5" tabindex="0">★</span>
-          </div>
+
+        <!-- Specs table -->
+        <div class="lightbox-specs" id="lb-specs"></div>
+
+        <!-- Story -->
+        <p class="lightbox-story" id="lb-story"></p>
+
+        <!-- Tags -->
+        <div class="painting-tags" id="lb-tags"></div>
+
+        <!-- Actions -->
+        <div class="lightbox-actions" id="lb-actions"></div>
+
+        <!-- Divider -->
+        <div class="lb-divider"></div>
+
+        <!-- Reviews -->
+        <div class="lb-reviews-section">
+          <h4 class="lb-section-title" data-i18n="reviews.title">Beoordelingen</h4>
+          <div id="lb-reviews"></div>
+
+          <details class="review-form-toggle">
+            <summary data-i18n="reviews.leave">Laat een beoordeling achter</summary>
+            <div class="review-form-body">
+              <div class="form-group">
+                <label for="rv-name" data-i18n="form.name">Naam</label>
+                <input class="form-control" type="text" id="rv-name" placeholder="Uw naam">
+              </div>
+              <div class="form-group">
+                <label data-i18n="reviews.rating">Beoordeling</label>
+                <div class="stars-input" id="stars-input">
+                  <span class="star-btn" data-v="1" tabindex="0">★</span>
+                  <span class="star-btn" data-v="2" tabindex="0">★</span>
+                  <span class="star-btn" data-v="3" tabindex="0">★</span>
+                  <span class="star-btn" data-v="4" tabindex="0">★</span>
+                  <span class="star-btn" data-v="5" tabindex="0">★</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="rv-text" data-i18n="reviews.comment">Opmerking</label>
+                <textarea class="form-control" id="rv-text" rows="3" placeholder="Uw beoordeling…"></textarea>
+              </div>
+              <button class="btn btn-solid btn-sm" onclick="submitReview()" data-i18n="reviews.submit">
+                Beoordeling plaatsen
+              </button>
+            </div>
+          </details>
         </div>
-        <div class="form-group">
-          <label for="rv-text" data-i18n="reviews.comment">Opmerking</label>
-          <textarea class="form-control" id="rv-text" rows="3" placeholder="Uw beoordeling…"></textarea>
-        </div>
-        <button class="btn btn-solid btn-sm" onclick="submitReview()" data-i18n="reviews.submit">
-          Beoordeling plaatsen
-        </button>
+
       </div>
     </div>
+
   </div>
 </div>
 

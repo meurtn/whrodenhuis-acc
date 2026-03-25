@@ -179,51 +179,36 @@ window.doSearch = doSearch;
 // ─────────────────────────────────────────────────────────────────────────────
 // HERO SLIDESHOW
 // ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// HERO - scrolling thumbnail strip
+// -----------------------------------------------------------------------------
 async function loadHero() {
   const { db, collection, getDocs, query, where } = fb();
 
-  // Probeer eerst uitgelichte schilderijen
-  const featuredSnap = await getDocs(query(collection(db, 'paintings'), where('featured', '==', true)));
-  featuredSnap.forEach(d => heroSlides.push({ id: d.id, ...d.data() }));
+  // Try featured first, fall back to all
+  const featSnap = await getDocs(query(collection(db, 'paintings'), where('featured', '==', true)));
+  featSnap.forEach(d => heroSlides.push({ id: d.id, ...d.data() }));
 
-  // Fallback: neem de eerste 6 schilderijen
-  if (heroSlides.length < 2) {
+  if (heroSlides.length < 3) {
     heroSlides = [];
     const allSnap = await getDocs(collection(db, 'paintings'));
-    allSnap.forEach(d => { if (heroSlides.length < 6) heroSlides.push({ id: d.id, ...d.data() }); });
+    allSnap.forEach(d => heroSlides.push({ id: d.id, ...d.data() }));
   }
 
-  renderHeroSlides();
+  renderHeroStrip();
 }
 
-function renderHeroSlides() {
-  const slideshowEl = document.getElementById('hero-slideshow');
-  const dotsEl      = document.getElementById('hero-dots');
-  if (!heroSlides.length) return;
+function renderHeroStrip() {
+  const strip = document.getElementById('hero-strip');
+  if (!strip || !heroSlides.length) return;
 
-  slideshowEl.innerHTML = heroSlides.map((p, i) => `
-    <div class="hero-slide ${i === 0 ? 'active' : ''}" id="hs-${i}">
-      <img src="${p.imageUrl || ''}" alt="${titleFor(p)}" loading="${i === 0 ? 'eager' : 'lazy'}">
-      <div class="hero-slide-caption">
-        <h3>${titleFor(p)}</h3>
-        <p>${p.year || ''} · ${p.technique || ''}</p>
-      </div>
+  // Duplicate items for seamless infinite scroll
+  const items = [...heroSlides, ...heroSlides];
+  strip.innerHTML = items.map(p => `
+    <div class="hero-strip-item" onclick="openLightbox('${p.id}')" title="${titleFor(p)}">
+      <img src="${p.imageUrl || ''}" alt="${titleFor(p)}" loading="lazy">
     </div>`).join('');
-
-  dotsEl.innerHTML = heroSlides.map((_, i) =>
-    `<div class="hero-dot ${i === 0 ? 'active' : ''}" onclick="goHeroSlide(${i})"></div>`).join('');
-
-  clearInterval(heroTimer);
-  heroTimer = setInterval(() => goHeroSlide((heroIdx + 1) % heroSlides.length), 5200);
 }
-
-function goHeroSlide(i) {
-  heroIdx = i;
-  document.querySelectorAll('.hero-slide').forEach((s, j) => s.classList.toggle('active', j === i));
-  document.querySelectorAll('.hero-dot').forEach((d, j)   => d.classList.toggle('active', j === i));
-}
-
-window.goHeroSlide = goHeroSlide;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // UITGELICHTE SCHILDERIJEN (homepage)
@@ -247,12 +232,14 @@ async function loadFeatured() {
     '<p class="muted">Voeg schilderijen toe via het admin-paneel.</p>';
   observeRevealElements();
 
-  // Update statistieken
-  const allSnap = await getDocs(collection(db, 'paintings'));
+  // Update statistieken in hero
+  const allSnap2 = await getDocs(collection(db, 'paintings'));
   let total = 0, sold = 0;
-  allSnap.forEach(d => { total++; if (d.data().status === 'sold') sold++; });
-  document.getElementById('stat-paintings').textContent = total || '100+';
-  document.getElementById('stat-sold').textContent      = sold  || '-';
+  allSnap2.forEach(d => { total++; if (d.data().status === 'sold') sold++; });
+  const paintEl = document.getElementById('stat-paintings');
+  const soldEl  = document.getElementById('stat-sold');
+  if (paintEl) paintEl.textContent = total || '100+';
+  if (soldEl)  soldEl.textContent  = sold  || '-';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -331,10 +318,22 @@ function filterGallery(filter) {
   renderGallery();
 }
 
+// Sort keeps original array order intact by working on a copy per-render
+let _sortMode = 'default';
+function sortGallery(value) {
+  _sortMode = value;
+  renderGallery();
+}
+
 function renderGallery() {
-  const filtered = activeFilter === 'all'
-    ? allPaintings
+  let filtered = activeFilter === 'all'
+    ? [...allPaintings]
     : allPaintings.filter(p => (p.tags || []).includes(activeFilter));
+
+  if (_sortMode === 'year-desc')  filtered.sort((a,b) => (b.year||0) - (a.year||0));
+  if (_sortMode === 'year-asc')   filtered.sort((a,b) => (a.year||0) - (b.year||0));
+  if (_sortMode === 'price-asc')  filtered.sort((a,b) => (a.price||0) - (b.price||0));
+  if (_sortMode === 'price-desc') filtered.sort((a,b) => (b.price||0) - (a.price||0));
 
   document.getElementById('gallery-count').textContent =
     filtered.length + (lang === 'nl' ? ' werken' : ' works');
@@ -346,30 +345,40 @@ function renderGallery() {
 }
 
 window.filterGallery = filterGallery;
+window.sortGallery   = sortGallery;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// LIGHTBOX
+// LIGHTBOX - with prev/next navigation
 // ─────────────────────────────────────────────────────────────────────────────
+let _lightboxIds = [];   // ordered list of visible painting IDs for navigation
+let _lightboxIdx = -1;  // current index in that list
 async function openLightbox(id) {
   const { db, doc, getDoc } = fb();
   const snap = await getDoc(doc(db, 'paintings', id));
   if (!snap.exists()) return;
 
-  currentPainting = { id, ...snap.data() };
-  const p = currentPainting;
+  // Build navigation list from currently visible grid cards
+  const cards = document.querySelectorAll('.painting-card');
+  _lightboxIds = [...cards].map(c => c.getAttribute('onclick')?.match(/'([^']+)'/)?.[1]).filter(Boolean);
+  _lightboxIdx = _lightboxIds.indexOf(id);
 
+  currentPainting = { id, ...snap.data() };
+  _renderLightbox(currentPainting);
+
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function _renderLightbox(p) {
   document.getElementById('lb-img').src    = p.imageUrl || '';
   document.getElementById('lb-img').alt    = titleFor(p);
   document.getElementById('lb-title').textContent = titleFor(p);
-  document.getElementById('lb-year').textContent  = p.year || '';
 
   document.getElementById('lb-price').textContent = p.status === 'sold'
-    ? t('sold')
-    : (p.price ? formatPrice(p.price) : '');
+    ? t('sold') : (p.price ? formatPrice(p.price) : '');
 
   document.getElementById('lb-story').textContent = lang === 'nl'
-    ? (p.storyNl || '')
-    : (p.storyEn || p.storyNl || '');
+    ? (p.storyNl || '') : (p.storyEn || p.storyNl || '');
 
   document.getElementById('lb-specs').innerHTML = [
     ['lb.size',      p.size],
@@ -392,16 +401,30 @@ async function openLightbox(id) {
        <button class="btn" onclick="showPage('contact');closeLightbox()">${t('btn.enquire')}</button>`
     : `<button class="btn" onclick="showPage('contact');closeLightbox()">${t('btn.enquire')}</button>`;
 
-  // Reset reviewformulier
+  // Reset review form
   selectedStars = 0;
   document.querySelectorAll('.star-btn').forEach(s => s.classList.remove('on'));
-  document.getElementById('rv-name').value = '';
-  document.getElementById('rv-text').value = '';
+  const rvName = document.getElementById('rv-name');
+  const rvText = document.getElementById('rv-text');
+  if (rvName) rvName.value = '';
+  if (rvText) rvText.value = '';
 
-  loadReviews(id);
+  // Scroll info panel to top
+  const scroll = document.querySelector('.lightbox-panel-scroll');
+  if (scroll) scroll.scrollTop = 0;
 
-  document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  loadReviews(p.id);
+}
+
+async function navigateLightbox(direction) {
+  if (!_lightboxIds.length) return;
+  _lightboxIdx = (_lightboxIdx + direction + _lightboxIds.length) % _lightboxIds.length;
+  const nextId = _lightboxIds[_lightboxIdx];
+  const { db, doc, getDoc } = fb();
+  const snap = await getDoc(doc(db, 'paintings', nextId));
+  if (!snap.exists()) return;
+  currentPainting = { id: nextId, ...snap.data() };
+  _renderLightbox(currentPainting);
 }
 
 function closeLightbox() {
@@ -410,11 +433,21 @@ function closeLightbox() {
   currentPainting = null;
 }
 
-window.openLightbox  = openLightbox;
-window.closeLightbox = closeLightbox;
+window.openLightbox     = openLightbox;
+window.closeLightbox    = closeLightbox;
+window.navigateLightbox = navigateLightbox;
 
 document.getElementById('lightbox').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeLightbox();
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  const lb = document.getElementById('lightbox');
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape')     closeLightbox();
+  if (e.key === 'ArrowRight') navigateLightbox(1);
+  if (e.key === 'ArrowLeft')  navigateLightbox(-1);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -597,22 +630,30 @@ async function sendContact() {
   const subject = document.getElementById('cf-subject').value.trim();
   const message = document.getElementById('cf-message').value.trim();
   const statusEl = document.getElementById('cf-status');
+  const btn = document.querySelector('#contact-form-body .btn-solid');
 
   if (!name || !email || !message) {
     statusEl.innerHTML = `<div class="alert alert-err">${lang === 'nl' ? 'Vul alle verplichte velden in.' : 'Please fill in all required fields.'}</div>`;
     return;
   }
 
+  if (btn) { btn.disabled = true; btn.textContent = lang === 'nl' ? 'Verzenden...' : 'Sending...'; }
+
   const { db, collection, addDoc, serverTimestamp } = fb();
   await addDoc(collection(db, 'messages'), {
     type: 'contact', name, email, subject, message,
-    read: false,
-    createdAt: serverTimestamp()
+    read: false, createdAt: serverTimestamp()
   });
 
-  statusEl.innerHTML = `<div class="alert alert-ok">${lang === 'nl' ? 'Uw bericht is verzonden. Dank!' : 'Your message has been sent. Thank you!'}</div>`;
-  ['cf-name', 'cf-email', 'cf-subject', 'cf-message'].forEach(id =>
-    document.getElementById(id).value = '');
+  // Replace form with success message
+  const formBody = document.getElementById('contact-form-body');
+  formBody.innerHTML = `
+    <div style="text-align:center;padding:3rem 1rem">
+      <div style="font-size:2.5rem;margin-bottom:1rem">✓</div>
+      <h3 style="font-family:var(--ff-serif);font-size:1.6rem;margin-bottom:0.75rem">${lang === 'nl' ? 'Bericht verzonden' : 'Message sent'}</h3>
+      <p style="color:var(--muted);font-size:0.95rem;margin-bottom:1.5rem">${lang === 'nl' ? 'Dank voor uw bericht. Ik reageer zo snel mogelijk.' : 'Thank you for your message. I will respond as soon as possible.'}</p>
+      <button class="btn" onclick="location.reload()">${lang === 'nl' ? 'Nieuw bericht' : 'New message'}</button>
+    </div>`;
 }
 
 window.sendContact = sendContact;

@@ -48,6 +48,13 @@ export const translations = {
     // Galerij
     'gallery.title':   'Galerij',
     'filter.all':      'Alles',
+    'gallery.sortby':  'Sorteren op',
+    'sort.default':    'Standaard',
+    'sort.year-desc':  'Jaar (nieuw-oud)',
+    'sort.year-asc':   'Jaar (oud-nieuw)',
+    'sort.price-asc':  'Prijs (laag-hoog)',
+    'sort.price-desc': 'Prijs (hoog-laag)',
+    'contact.note':    'Heeft u al een werk op het oog? Voeg het toe aan uw selectie vanuit de galerij voor een gerichte aanvraag.',
 
     // Winkelmandje / selectie
     'cart.title':   'Selectie',
@@ -151,6 +158,13 @@ export const translations = {
     // Gallery
     'gallery.title': 'Gallery',
     'filter.all':    'All',
+    'gallery.sortby':  'Sort by',
+    'sort.default':    'Default',
+    'sort.year-desc':  'Year (new-old)',
+    'sort.year-asc':   'Year (old-new)',
+    'sort.price-asc':  'Price (low-high)',
+    'sort.price-desc': 'Price (high-low)',
+    'contact.note':    'Already have a work in mind? Add it to your selection from the gallery for a focused enquiry.',
 
     // Cart / selection
     'cart.title':   'Selection',
