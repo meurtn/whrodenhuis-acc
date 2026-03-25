@@ -35,11 +35,39 @@ function setLoading(btn, loading, label = 'Opslaan') {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AUTH - Google (primair) + e-mail/wachtwoord (fallback)
+// Toegang alleen voor e-mailadressen in de Firestore 'admins' collectie.
 // ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Controleer of het ingelogde e-mailadres in de 'admins' collectie staat.
+ * Zo niet: direct uitloggen en foutmelding tonen.
+ */
+async function checkAdminAccess(user) {
+  const { db, doc, getDoc } = fb();
+  try {
+    const snap = await getDoc(doc(db, 'admins', user.email));
+    if (snap.exists()) {
+      showDashboard(user);
+    } else {
+      // Niet geautoriseerd - direct uitloggen
+      await fb().signOut(fb().auth);
+      showLogin();
+      showLoginAlert(
+        'Geen toegang. Dit account (' + user.email + ') is niet geautoriseerd als beheerder.'
+      );
+    }
+  } catch (e) {
+    // Firestore fout (bijv. geen internetverbinding)
+    await fb().signOut(fb().auth);
+    showLogin();
+    showLoginAlert('Fout bij het controleren van toegangsrechten. Probeer opnieuw.');
+  }
+}
+
 function initAuth() {
   fb().onAuthStateChanged(fb().auth, user => {
     if (user) {
-      showDashboard(user);
+      checkAdminAccess(user);
     } else {
       showLogin();
     }
@@ -49,6 +77,12 @@ function initAuth() {
 function showLogin() {
   document.getElementById('screen-login').style.display     = 'flex';
   document.getElementById('screen-dashboard').style.display = 'none';
+}
+
+function showLoginAlert(msg) {
+  const alertEl = document.getElementById('login-alert');
+  alertEl.textContent   = msg;
+  alertEl.style.display = 'block';
 }
 
 function showDashboard(user) {
@@ -64,22 +98,21 @@ async function loginWithGoogle() {
   alertEl.style.display = 'none';
   try {
     await fb().signInWithGoogle();
+    // onAuthStateChanged handelt de rest af inclusief de whitelist-check
   } catch (e) {
-    alertEl.textContent   = 'Google-inloggen mislukt: ' + e.message;
-    alertEl.style.display = 'block';
+    showLoginAlert('Google-inloggen mislukt: ' + e.message);
   }
 }
 
 async function loginWithEmail() {
   const email   = document.getElementById('admin-email').value.trim();
   const pass    = document.getElementById('admin-pass').value;
-  const alertEl = document.getElementById('login-alert');
-  alertEl.style.display = 'none';
+  document.getElementById('login-alert').style.display = 'none';
   try {
     await fb().signInWithEmailAndPassword(fb().auth, email, pass);
+    // onAuthStateChanged handelt de rest af inclusief de whitelist-check
   } catch {
-    alertEl.textContent   = 'Inloggen mislukt. Controleer e-mail en wachtwoord.';
-    alertEl.style.display = 'block';
+    showLoginAlert('Inloggen mislukt. Controleer e-mail en wachtwoord.');
   }
 }
 
