@@ -354,6 +354,7 @@ async function loadOverzicht() {
         <div class="ov-slide-wrap">
         <div class="ov-detail-inner">
           <img class="ov-detail-img" src="${p.imageUrl || ''}" alt="" loading="lazy">
+          <div class="ov-right-col">
           ${story ? `<div class="ov-story-block"><label>Verhaal</label><p>${story}</p></div>` : ''}
           ${technique !== '-' ? `<div class="ov-technique-block"><label>Techniek</label><span>${technique}</span></div>` : ''}
           <div class="ov-fields-grid">
@@ -366,13 +367,13 @@ async function loadOverzicht() {
             <div class="ov-df"><label>Uitgelicht</label><span>${p.showInFeatured ? 'Ja' : 'Nee'}</span></div>
             <div class="ov-df"><label>Zichtbaar</label><span>${isVis ? 'Ja' : 'Nee'}</span></div>
           </div>
-          <div class="ov-detail-clear"></div>
           <div class="ov-detail-actions">
             <button class="ov-visible-toggle ${isVis ? 'on' : ''}"
               onclick="event.stopPropagation(); toggleVisible('${p.id}', this)">
               ${isVis ? '\u2713 Zichtbaar op website' : '+ Zichtbaar maken'}
             </button>
             <button class="btn btn-sm" onclick="event.stopPropagation(); openModal('${p.id}')">Bewerken</button>
+          </div>
           </div>
         </div>
         </div>

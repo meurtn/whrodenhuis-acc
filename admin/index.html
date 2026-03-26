@@ -399,49 +399,60 @@ tr:hover td { background: rgba(245,240,232,0.5); }
 }
 .ov-detail-inner {
   padding: 1.1rem 1.1rem 1.25rem 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-/* Verhaal - bovenaan, volledige breedte */
-.ov-story-block {
-  padding: 0.9rem 0 0.9rem;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 0.9rem;
-}
-.ov-story-block label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 0.35rem; }
-.ov-story-block p  { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
-/* Techniek - volledige breedte */
-.ov-technique-block {
-  padding-bottom: 0.9rem;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 0.9rem;
-}
-.ov-technique-block label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 0.25rem; }
-.ov-technique-block span  { font-size: 0.88rem; }
-/* Korte velden - 3 kolommen */
-.ov-fields-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem 1.25rem;
-  margin-bottom: 0.9rem;
+  grid-template-columns: 160px 1fr;
+  gap: 0 1.5rem;
 }
-.ov-df { display: flex; flex-direction: column; gap: 0.1rem; }
-.ov-df label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.ov-df span  { font-size: 0.85rem; }
+/* Photo spans all rows */
 .ov-detail-img {
-  float: right;
-  margin: 0 0 0.75rem 1.25rem;
-  width: 160px; height: 200px;
+  grid-column: 1;
+  grid-row: 1 / 10;
+  width: 160px;
+  align-self: start;
   object-fit: contain;
   background: var(--linen-dark);
   border-radius: var(--r);
   display: block;
+  max-height: 240px;
 }
-.ov-detail-clear { clear: both; }
+/* Right column: all content stacked */
+.ov-right-col {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+/* Verhaal - bovenaan, volledige breedte van rechterkolom */
+.ov-story-block {
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.85rem;
+}
+.ov-story-block label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 0.35rem; }
+.ov-story-block p  { font-size: 0.88rem; color: var(--ink); line-height: 1.7; }
+/* Techniek - volledige breedte van rechterkolom */
+.ov-technique-block {
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.85rem;
+}
+.ov-technique-block label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 0.25rem; }
+.ov-technique-block span  { font-size: 0.88rem; color: var(--ink); }
+/* Korte velden - 3 kolommen in rechterkolom */
+.ov-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 0.85rem;
+}
+.ov-df { display: flex; flex-direction: column; gap: 0.1rem; }
+.ov-df label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.ov-df span  { font-size: 0.85rem; color: var(--ink); }
+.ov-detail-clear { display: none; }
 .ov-detail-actions {
-  display: flex; gap: 0.5rem; align-items: center; padding-top: 0.5rem;
-  border-top: 1px solid var(--border); margin-top: 0.25rem;
+  display: flex; gap: 0.5rem; align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
 }
 .ov-visible-toggle {
   display: inline-flex; align-items: center; gap: 0.35rem;
