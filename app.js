@@ -87,7 +87,16 @@ window.toggleLang = toggleLang;
 // ─────────────────────────────────────────────────────────────────────────────
 // NAVIGATIE
 // ─────────────────────────────────────────────────────────────────────────────
-function showPage(name) {
+// Page name to hash and back
+const PAGE_HASHES = {
+  home:    '#home',
+  gallery: '#galerij',
+  about:   '#over-mij',
+  contact: '#contact',
+};
+const HASH_PAGES = Object.fromEntries(Object.entries(PAGE_HASHES).map(([k,v]) => [v, k]));
+
+function showPage(name, pushState = true) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   window.scrollTo(0, 0);
@@ -98,9 +107,21 @@ function showPage(name) {
     a.classList.toggle('active', a.getAttribute('onclick')?.includes("'" + name + "'"));
   });
 
+  // Push URL hash so browser back/forward works
+  if (pushState) {
+    const hash = PAGE_HASHES[name] || '#home';
+    history.pushState({ page: name }, '', hash);
+  }
+
   if (name === 'gallery') loadGallery();
   if (name === 'about')   loadAboutPage();
 }
+
+// Handle browser back/forward buttons
+window.addEventListener('popstate', e => {
+  const name = e.state?.page || HASH_PAGES[location.hash] || 'home';
+  showPage(name, false); // false = don't push another state
+});
 
 window.showPage = showPage;
 
@@ -195,11 +216,14 @@ async function loadHero() {
     legacySnap.forEach(d => heroSlides.push({ id: d.id, ...d.data() }));
   }
 
-  // Final fallback: any paintings at all
+  // Final fallback: any visible paintings at all
   if (heroSlides.length < 2) {
     heroSlides = [];
     const allSnap = await getDocs(collection(db, 'paintings'));
-    allSnap.forEach(d => heroSlides.push({ id: d.id, ...d.data() }));
+    allSnap.forEach(d => {
+      const p = { id: d.id, ...d.data() };
+      if (p.visible !== false) heroSlides.push(p);
+    });
   }
 
   renderHeroStrip();
@@ -237,11 +261,14 @@ async function loadFeatured() {
     legacySnap.forEach(d => paintings.push({ id: d.id, ...d.data() }));
   }
 
-  // Final fallback: show first few paintings
+  // Final fallback: show first few visible paintings
   if (paintings.length < 2) {
     paintings = [];
     const allSnap = await getDocs(collection(db, 'paintings'));
-    allSnap.forEach(d => { if (paintings.length < 6) paintings.push({ id: d.id, ...d.data() }); });
+    allSnap.forEach(d => {
+      const p = { id: d.id, ...d.data() };
+      if (paintings.length < 6 && p.visible !== false) paintings.push(p);
+    });
   }
 
   grid.innerHTML = paintings.slice(0, 6).map(paintingCardHTML).join('') ||
@@ -309,7 +336,11 @@ async function loadGallery() {
   const snap = await getDocs(collection(db, 'paintings'));
 
   allPaintings = [];
-  snap.forEach(d => allPaintings.push({ id: d.id, ...d.data() }));
+  snap.forEach(d => {
+    const p = { id: d.id, ...d.data() };
+    // visible defaults to true for paintings without the field (legacy)
+    if (p.visible !== false) allPaintings.push(p);
+  });
 
   // Bouw tagfilters op
   const allTags = new Set();
@@ -806,6 +837,12 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(init, 300);
   renderCart();
   applyTranslations();
+
+  // Handle initial URL hash (direct link / refresh)
+  const initialPage = HASH_PAGES[location.hash] || 'home';
+  // Replace the current history state so back button works correctly from entry
+  history.replaceState({ page: initialPage }, '', PAGE_HASHES[initialPage] || '#home');
+  if (initialPage !== 'home') showPage(initialPage, false);
 });
 
 // EINDE - admin-functionaliteit zit in admin/index.html (lokaal bestand)

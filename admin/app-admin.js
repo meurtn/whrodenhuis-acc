@@ -150,8 +150,9 @@ function setAdminLang(lang) {
 
   // Reload active tab with new language
   const activeTab = document.querySelector('.tab-panel.active');
-  if (activeTab?.id === 'tab-about') loadAbout();
-  if (activeTab?.id === 'tab-texts') loadTexts();
+  if (activeTab?.id === 'tab-about')    loadAbout();
+  if (activeTab?.id === 'tab-texts')    loadTexts();
+  if (activeTab?.id === 'tab-overzicht') loadOverzicht();
 }
 
 window.setAdminLang = setAdminLang;
@@ -165,9 +166,10 @@ function showTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('active');
   if (btn) btn.classList.add('active');
 
-  if (tab === 'messages') loadMessages();
-  if (tab === 'about')    loadAbout();
-  if (tab === 'texts')    loadTexts();
+  if (tab === 'messages')  loadMessages();
+  if (tab === 'about')     loadAbout();
+  if (tab === 'texts')     loadTexts();
+  if (tab === 'overzicht') loadOverzicht();
 }
 window.showTab = showTab;
 
@@ -210,26 +212,69 @@ async function uploadToCloudinary(file, onProgress) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCHILDERIJEN - OVERZICHT
+// SCHILDERIJEN - WEBSITE OVERZICHT (alleen visible=true of geen visible-veld)
 // ─────────────────────────────────────────────────────────────────────────────
+let _allPaintings  = [];   // alle schilderijen in geheugen
+let _paintSort     = { col: 'year', dir: 'desc' };
+
 async function loadPaintings() {
   const { db, collection, getDocs } = fb();
   const tbody = document.getElementById('paintings-body');
-  tbody.innerHTML = '<tr><td colspan="7" class="loading-cell">Laden…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="8" class="loading-cell">Laden…</td></tr>';
 
   const snap = await getDocs(collection(db, 'paintings'));
-  const paintings = [];
-  snap.forEach(d => paintings.push({ id: d.id, ...d.data() }));
+  _allPaintings = [];
+  snap.forEach(d => _allPaintings.push({ id: d.id, ...d.data() }));
 
-  // Sorteren: nieuwste eerst op basis van year
-  paintings.sort((a, b) => (b.year || 0) - (a.year || 0));
+  renderPaintingsTable();
+}
 
-  if (!paintings.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="loading-cell">Nog geen schilderijen.</td></tr>';
+function sortPaintingsBy(col) {
+  if (_paintSort.col === col) {
+    _paintSort.dir = _paintSort.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    _paintSort = { col, dir: col === 'year' || col === 'price' ? 'desc' : 'asc' };
+  }
+  renderPaintingsTable();
+}
+
+function renderPaintingsTable() {
+  const tbody = document.getElementById('paintings-body');
+
+  // Only show paintings that are visible on website (visible=true or no visible field yet)
+  const visible = _allPaintings.filter(p => p.visible !== false);
+
+  // Sort
+  const { col, dir } = _paintSort;
+  const sorted = [...visible].sort((a, b) => {
+    let va, vb;
+    if (col === 'title')  { va = (a.titleNl || '').toLowerCase(); vb = (b.titleNl || '').toLowerCase(); }
+    if (col === 'year')   { va = a.year  || 0; vb = b.year  || 0; }
+    if (col === 'price')  { va = a.price || 0; vb = b.price || 0; }
+    if (col === 'status') { va = a.status || ''; vb = b.status || ''; }
+    if (va < vb) return dir === 'asc' ? -1 :  1;
+    if (va > vb) return dir === 'asc' ?  1 : -1;
+    return 0;
+  });
+
+  // Update column header arrows
+  ['title','year','price','status'].forEach(c => {
+    const el = document.getElementById('sort-' + c);
+    if (!el) return;
+    el.classList.toggle('sort-active', _paintSort.col === c);
+    const arrow = el.querySelector('.sort-arrow');
+    if (arrow) {
+      arrow.textContent = _paintSort.col === c
+        ? (_paintSort.dir === 'asc' ? '↑' : '↓') : '';
+    }
+  });
+
+  if (!sorted.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="loading-cell">Geen zichtbare schilderijen. Activeer schilderijen via het OVERZICHT.</td></tr>';
     return;
   }
 
-  tbody.innerHTML = paintings.map(p => `
+  tbody.innerHTML = sorted.map(p => `
     <tr>
       <td><img class="thumb" src="${p.imageUrl || ''}" alt=""></td>
       <td>
@@ -241,9 +286,7 @@ async function loadPaintings() {
       <td><span class="status-badge status-${p.status || 'available'}">${statusLabel(p.status)}</span></td>
       <td class="center">${p.showInHero     ? '✓' : ''}</td>
       <td class="center">${p.showInFeatured ? '✓' : ''}</td>
-      <td>
-        <button class="btn btn-sm" onclick="openModal('${p.id}')">Bewerken</button>
-      </td>
+      <td><button class="btn btn-sm" onclick="openModal('${p.id}')">Bewerken</button></td>
     </tr>`).join('');
 }
 
@@ -251,7 +294,122 @@ function statusLabel(s) {
   return { available: 'Beschikbaar', reserved: 'Gereserveerd', sold: 'Verkocht' }[s] || s;
 }
 
-window.loadPaintings = loadPaintings;
+window.loadPaintings     = loadPaintings;
+window.sortPaintingsBy   = sortPaintingsBy;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OVERZICHT - kaartgrid van ALLE schilderijen, ook niet-zichtbare
+// ─────────────────────────────────────────────────────────────────────────────
+let _ovSort = { col: 'year', dir: 'desc' };
+
+async function loadOverzicht() {
+  const { db, collection, getDocs } = fb();
+  const grid  = document.getElementById('overzicht-grid');
+  const count = document.getElementById('overzicht-count');
+  grid.innerHTML = '<p class="loading-cell">Laden…</p>';
+
+  // Use cached paintings if available, otherwise fetch
+  if (!_allPaintings.length) {
+    const snap = await getDocs(collection(db, 'paintings'));
+    _allPaintings = [];
+    snap.forEach(d => _allPaintings.push({ id: d.id, ...d.data() }));
+  }
+
+  // Sort by year descending by default
+  const sorted = [..._allPaintings].sort((a, b) => (b.year || 0) - (a.year || 0));
+
+  if (count) count.textContent = `${sorted.length} schilderijen totaal -  ${sorted.filter(p => p.visible !== false).length} zichtbaar op website.`;
+
+  if (!sorted.length) {
+    grid.innerHTML = '<p class="loading-cell">Nog geen schilderijen.</p>';
+    return;
+  }
+
+  const isEn = adminLang === 'en';
+  grid.innerHTML = sorted.map(p => {
+    const title   = isEn ? (p.titleEn || p.titleNl || '-') : (p.titleNl || '-');
+    const story   = isEn ? (p.storyEn || p.storyNl || '') : (p.storyNl || '');
+    const isVis   = p.visible !== false;
+    const metaParts = [p.year, p.size, p.technique].filter(Boolean);
+
+    return `
+    <div class="ov-card ${isVis ? '' : 'not-visible'}" id="ov-card-${p.id}">
+      <div class="ov-card-img">
+        <img src="${p.imageUrl || ''}" alt="${title}" loading="lazy">
+        <span class="ov-card-badge ${isVis ? 'visible-on' : ''}">
+          ${isVis ? 'Zichtbaar' : 'Verborgen'}
+        </span>
+      </div>
+      <div class="ov-card-body">
+        <div class="ov-card-title">${title}</div>
+        <div class="ov-card-meta">${metaParts.join(' · ')}</div>
+        <div class="ov-card-actions">
+          <button class="ov-visible-toggle ${isVis ? 'on' : ''}"
+            onclick="toggleVisible('${p.id}', this)"
+            title="${isVis ? 'Verbergen van website' : 'Tonen op website'}">
+            ${isVis ? '✓ Zichtbaar' : '+ Zichtbaar maken'}
+          </button>
+          <button class="btn btn-sm" onclick="openModal('${p.id}')">Bewerken</button>
+          <button class="btn btn-sm" onclick="toggleOvDetails('${p.id}')">Details</button>
+        </div>
+      </div>
+      <div class="ov-details" id="ov-details-${p.id}">
+        <div class="ov-detail-row"><span class="ov-detail-label">Jaar</span><span>${p.year || '-'}</span></div>
+        <div class="ov-detail-row"><span class="ov-detail-label">Prijs</span><span>${p.price ? formatPrice(p.price) : '-'}</span></div>
+        <div class="ov-detail-row"><span class="ov-detail-label">Afmetingen</span><span>${p.size || '-'}</span></div>
+        <div class="ov-detail-row"><span class="ov-detail-label">Techniek</span><span>${p.technique || '-'}</span></div>
+        <div class="ov-detail-row"><span class="ov-detail-label">Status</span><span>${statusLabel(p.status)}</span></div>
+        ${story ? `
+        <div class="ov-story">
+          <div class="ov-story-label">Verhaal (${isEn ? 'EN' : 'NL'})</div>
+          <p>${story}</p>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function toggleVisible(id, btn) {
+  const painting = _allPaintings.find(p => p.id === id);
+  if (!painting) return;
+
+  const newVal = painting.visible === false; // toggle: false -> true, true/undefined -> false
+  painting.visible = newVal;
+
+  const { db, doc, updateDoc } = fb();
+  await updateDoc(doc(db, 'paintings', id), { visible: newVal });
+
+  // Update card UI
+  const card = document.getElementById('ov-card-' + id);
+  if (card) {
+    card.classList.toggle('not-visible', !newVal);
+    const badge = card.querySelector('.ov-card-badge');
+    if (badge) {
+      badge.textContent = newVal ? 'Zichtbaar' : 'Verborgen';
+      badge.classList.toggle('visible-on', newVal);
+    }
+  }
+  btn.classList.toggle('on', newVal);
+  btn.textContent = newVal ? '✓ Zichtbaar' : '+ Zichtbaar maken';
+
+  // Update count
+  const count = document.getElementById('overzicht-count');
+  if (count) count.textContent = `${_allPaintings.length} schilderijen totaal -  ${_allPaintings.filter(p => p.visible !== false).length} zichtbaar op website.`;
+
+  showToast(newVal ? 'Schilderij zichtbaar op website.' : 'Schilderij verborgen van website.');
+
+  // Refresh SCHILDERIJEN table if it's been loaded
+  renderPaintingsTable();
+}
+
+function toggleOvDetails(id) {
+  const el = document.getElementById('ov-details-' + id);
+  if (el) el.classList.toggle('open');
+}
+
+window.loadOverzicht    = loadOverzicht;
+window.toggleVisible    = toggleVisible;
+window.toggleOvDetails  = toggleOvDetails;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SCHILDERIJ MODAL - toevoegen / bewerken
@@ -293,6 +451,7 @@ function _clearModal() {
   document.getElementById('pm-status').value          = 'available';
   document.getElementById('pm-show-hero').checked     = false;
   document.getElementById('pm-show-featured').checked = false;
+  document.getElementById('pm-visible').checked       = false;
   document.getElementById('pm-image').value           = '';
   _setPreview(null);
   _resetProgress();
@@ -316,6 +475,8 @@ async function _loadIntoModal(id) {
   document.getElementById('pm-status').value          = p.status    || 'available';
   document.getElementById('pm-show-hero').checked     = !!p.showInHero;
   document.getElementById('pm-show-featured').checked = !!p.showInFeatured;
+  // visible defaults to true for existing paintings without the field
+  document.getElementById('pm-visible').checked       = p.visible !== false;
 
   _currentImageUrl = p.imageUrl  || null;
   _currentPublicId  = p.publicId || null;
@@ -381,6 +542,7 @@ async function savePainting() {
 
     const showInHero     = document.getElementById('pm-show-hero').checked;
     const showInFeatured = document.getElementById('pm-show-featured').checked;
+    const visible        = document.getElementById('pm-visible').checked;
 
     const data = {
       titleNl:        document.getElementById('pm-title-nl').value.trim(),
@@ -395,6 +557,7 @@ async function savePainting() {
       status:         document.getElementById('pm-status').value,
       showInHero,
       showInFeatured,
+      visible,
       // Keep legacy 'featured' field in sync for backwards compat
       featured:       showInHero || showInFeatured,
       imageUrl,

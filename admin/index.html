@@ -209,6 +209,13 @@ th {
   color: var(--muted); border-bottom: 2px solid var(--border);
   white-space: nowrap;
 }
+th.sortable {
+  cursor: pointer; user-select: none;
+  transition: color 0.2s;
+}
+th.sortable:hover { color: var(--ink); }
+th.sort-active    { color: var(--olive); }
+.sort-arrow       { font-size: 0.85em; margin-left: 0.25rem; display: inline-block; min-width: 0.9em; }
 td { padding: 0.7rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
 tr:hover td { background: rgba(245,240,232,0.5); }
 .thumb { width: 52px; height: 52px; object-fit: cover; border-radius: var(--r); background: var(--linen-dark); }
@@ -298,6 +305,71 @@ tr:hover td { background: rgba(245,240,232,0.5); }
 .message-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.9rem; }
 .empty-note { text-align: center; padding: 2.5rem; color: var(--muted); font-size: 0.9rem; }
 
+/* ─── OVERZICHT TAB ─── */
+.overzicht-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+.ov-card {
+  background: var(--canvas);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.ov-card.not-visible {
+  opacity: 0.58;
+  border-style: dashed;
+}
+.ov-card:hover { box-shadow: var(--shadow); }
+.ov-card-img {
+  height: 220px;
+  background: var(--linen-dark);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative;
+}
+.ov-card-img img {
+  max-width: 100%; max-height: 100%;
+  width: auto; height: auto;
+  object-fit: contain; display: block;
+}
+.ov-card-badge {
+  position: absolute; top: 0.6rem; right: 0.6rem;
+  font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.2rem 0.55rem; border-radius: 20px;
+  background: var(--linen-dark); color: var(--muted); border: 1px solid var(--border);
+}
+.ov-card-badge.visible-on { background: rgba(92,100,64,0.12); color: var(--olive); border-color: var(--olive-lt); }
+.ov-card-body { padding: 0.9rem 1rem; }
+.ov-card-title { font-family: var(--ff-serif); font-size: 1.1rem; margin-bottom: 0.2rem; }
+.ov-card-meta  { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; }
+.ov-card-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.ov-visible-toggle {
+  display: flex; align-items: center; gap: 0.4rem;
+  font-size: 0.78rem; color: var(--muted); cursor: pointer;
+  padding: 0.3rem 0.6rem; border: 1px solid var(--border);
+  border-radius: var(--r); background: transparent; font-family: inherit;
+  transition: all 0.2s;
+}
+.ov-visible-toggle:hover { border-color: var(--olive); color: var(--olive); }
+.ov-visible-toggle.on    { background: var(--olive); color: var(--linen); border-color: var(--olive); }
+
+/* Uitklapbare details */
+.ov-details {
+  display: none;
+  padding: 0.85rem 1rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--linen);
+  font-size: 0.85rem;
+}
+.ov-details.open { display: block; }
+.ov-detail-row { display: flex; gap: 0.75rem; margin-bottom: 0.4rem; line-height: 1.5; }
+.ov-detail-label { color: var(--muted); flex-shrink: 0; min-width: 80px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.ov-story { margin-top: 0.75rem; color: var(--muted); line-height: 1.65; border-top: 1px solid var(--border); padding-top: 0.75rem; }
+.ov-story-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.3rem; }
+
 /* ─── OVER MIJ TAB ─── */
 .about-panel { max-width: 680px; }
 .about-photo-preview {
@@ -369,6 +441,7 @@ tr:hover td { background: rgba(245,240,232,0.5); }
       <button class="admin-lang-btn"        id="admin-lang-en" onclick="setAdminLang('en')">EN</button>
     </div>
     <button class="tab-btn active" onclick="showTab('paintings', this)">Schilderijen</button>
+    <button class="tab-btn"        onclick="showTab('overzicht', this)">Overzicht</button>
     <button class="tab-btn"        onclick="showTab('messages',  this)">Berichten</button>
     <button class="tab-btn"        onclick="showTab('about',     this)">Over mij</button>
     <button class="tab-btn"        onclick="showTab('texts',     this)">Teksten</button>
@@ -391,10 +464,10 @@ tr:hover td { background: rgba(245,240,232,0.5); }
           <thead>
             <tr>
               <th>Afb.</th>
-              <th>Titel</th>
-              <th>Jaar</th>
-              <th>Prijs</th>
-              <th>Status</th>
+              <th class="sortable" onclick="sortPaintingsBy('title')" id="sort-title">Titel <span class="sort-arrow"></span></th>
+              <th class="sortable" onclick="sortPaintingsBy('year')"  id="sort-year">Jaar <span class="sort-arrow">↓</span></th>
+              <th class="sortable" onclick="sortPaintingsBy('price')" id="sort-price">Prijs <span class="sort-arrow"></span></th>
+              <th class="sortable" onclick="sortPaintingsBy('status')" id="sort-status">Status <span class="sort-arrow"></span></th>
               <th class="center">Hero</th>
               <th class="center">Uitgelicht</th>
               <th>Acties</th>
@@ -497,6 +570,23 @@ tr:hover td { background: rgba(245,240,232,0.5); }
         Teksten staan in Firestore onder <code>settings/texts</code>.
         Nieuwe velden worden automatisch opgepikt zodra ze in Firestore bestaan.
       </div>
+    </div><!-- /tab-texts -->
+
+    <!-- ── Tab: Overzicht ── -->
+    <div class="tab-panel" id="tab-overzicht">
+      <div class="panel-toolbar">
+        <div>
+          <h2>Overzicht</h2>
+          <p style="font-size:0.85rem;color:var(--muted);margin-top:0.25rem" id="overzicht-count">Alle schilderijen -  ook niet-zichtbare op website.</p>
+        </div>
+        <div style="display:flex;gap:0.75rem;align-items:center">
+          <button class="btn" onclick="loadOverzicht()">↻ Vernieuwen</button>
+          <button class="btn btn-solid" onclick="openModal()">+ Nieuw schilderij</button>
+        </div>
+      </div>
+      <div id="overzicht-grid" class="overzicht-grid">
+        <p class="loading-cell">Laden…</p>
+      </div>
     </div>
 
   </div><!-- /dashboard-body -->
@@ -588,6 +678,10 @@ tr:hover td { background: rgba(245,240,232,0.5); }
       <div class="form-group">
         <label>Weergave</label>
         <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.25rem">
+          <label style="display:flex;align-items:center;gap:0.6rem;font-size:0.88rem;text-transform:none;letter-spacing:0;color:var(--ink);cursor:pointer">
+            <input type="checkbox" id="pm-visible" style="width:16px;height:16px;accent-color:var(--olive);cursor:pointer">
+            Zichtbaar op website
+          </label>
           <label style="display:flex;align-items:center;gap:0.6rem;font-size:0.88rem;text-transform:none;letter-spacing:0;color:var(--ink);cursor:pointer">
             <input type="checkbox" id="pm-show-hero" style="width:16px;height:16px;accent-color:var(--olive);cursor:pointer">
             Toon in hero slideshow
