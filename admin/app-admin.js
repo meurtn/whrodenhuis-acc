@@ -324,7 +324,7 @@ async function loadOverzicht() {
   }
 
   const isEn  = adminLang === 'en';
-  const TRUNC = 80;
+  const TRUNC = 180;
   const trunc = s => !s ? '' : s.length > TRUNC ? s.slice(0, TRUNC).trimEnd() + '\u2026' : s;
 
   const rows = sorted.map(p => {
@@ -346,8 +346,8 @@ async function loadOverzicht() {
         <div class="ov-title-sub">${p.year || ''}</div>
       </td>
       <td>${p.size || '-'}</td>
-      <td class="ov-truncate"><div class="ov-truncate-inner" title="${technique}">${technique}</div></td>
       <td class="ov-truncate"><div class="ov-truncate-inner" title="${story}">${trunc(story)}</div></td>
+      <td class="ov-truncate"><div class="ov-truncate-inner" title="${technique}">${technique}</div></td>
       <td><span class="ov-vis-badge ${isVis ? 'on' : ''}">${isVis ? 'Zichtbaar' : 'Verborgen'}</span></td>
       <td style="text-align:right;padding-right:1rem"><span class="ov-chevron">&#9654;</span></td>
     </tr>
@@ -390,8 +390,8 @@ async function loadOverzicht() {
           <th style="width:68px"></th>
           <th>Titel</th>
           <th>Afmetingen</th>
-          <th>Techniek</th>
           <th>Omschrijving</th>
+          <th>Techniek</th>
           <th>Website</th>
           <th></th>
         </tr>
