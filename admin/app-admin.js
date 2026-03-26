@@ -346,8 +346,8 @@ async function loadOverzicht() {
         <div class="ov-title-sub">${p.year || ''}</div>
       </td>
       <td>${p.size || '-'}</td>
-      <td class="ov-truncate" title="${technique}">${technique}</td>
-      <td class="ov-truncate" title="${story}">${trunc(story)}</td>
+      <td class="ov-truncate"><div class="ov-truncate-inner" title="${technique}">${technique}</div></td>
+      <td class="ov-truncate"><div class="ov-truncate-inner" title="${story}">${trunc(story)}</div></td>
       <td><span class="ov-vis-badge ${isVis ? 'on' : ''}">${isVis ? 'Zichtbaar' : 'Verborgen'}</span></td>
       <td style="text-align:right;padding-right:1rem"><span class="ov-chevron">&#9654;</span></td>
     </tr>
