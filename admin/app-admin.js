@@ -304,107 +304,145 @@ let _ovSort = { col: 'year', dir: 'desc' };
 
 async function loadOverzicht() {
   const { db, collection, getDocs } = fb();
-  const grid  = document.getElementById('overzicht-grid');
-  const count = document.getElementById('overzicht-count');
-  grid.innerHTML = '<p class="loading-cell">Laden…</p>';
+  const container = document.getElementById('overzicht-grid');
+  const count     = document.getElementById('overzicht-count');
+  container.innerHTML = '<p class="loading-cell">Laden\u2026</p>';
 
-  // Use cached paintings if available, otherwise fetch
   if (!_allPaintings.length) {
     const snap = await getDocs(collection(db, 'paintings'));
     _allPaintings = [];
     snap.forEach(d => _allPaintings.push({ id: d.id, ...d.data() }));
   }
 
-  // Sort by year descending by default
-  const sorted = [..._allPaintings].sort((a, b) => (b.year || 0) - (a.year || 0));
-
-  if (count) count.textContent = `${sorted.length} schilderijen totaal -  ${sorted.filter(p => p.visible !== false).length} zichtbaar op website.`;
+  const sorted   = [..._allPaintings].sort((a, b) => (b.year || 0) - (a.year || 0));
+  const visCount = sorted.filter(p => p.visible !== false).length;
+  if (count) count.textContent = `${sorted.length} schilderijen totaal - ${visCount} zichtbaar op website.`;
 
   if (!sorted.length) {
-    grid.innerHTML = '<p class="loading-cell">Nog geen schilderijen.</p>';
+    container.innerHTML = '<p class="loading-cell">Nog geen schilderijen.</p>';
     return;
   }
 
-  const isEn = adminLang === 'en';
-  grid.innerHTML = sorted.map(p => {
-    const title   = isEn ? (p.titleEn || p.titleNl || '-') : (p.titleNl || '-');
-    const story   = isEn ? (p.storyEn || p.storyNl || '') : (p.storyNl || '');
-    const isVis   = p.visible !== false;
-    const metaParts = [p.year, p.size, p.technique].filter(Boolean);
+  const isEn  = adminLang === 'en';
+  const TRUNC = 80;
+  const trunc = s => !s ? '' : s.length > TRUNC ? s.slice(0, TRUNC).trimEnd() + '\u2026' : s;
+
+  const rows = sorted.map(p => {
+    const title     = isEn ? (p.titleEn || p.titleNl || '-') : (p.titleNl || '-');
+    const story     = isEn ? (p.storyEn || p.storyNl || '') : (p.storyNl || '');
+    const storyNl   = p.storyNl || '';
+    const storyEn   = p.storyEn || '';
+    const isVis     = p.visible !== false;
+    const technique = p.technique || '-';
+    const priceStr  = p.price ? formatPrice(p.price) : '-';
+    const tags      = (p.tags || []).join(', ') || '-';
 
     return `
-    <div class="ov-card ${isVis ? '' : 'not-visible'}" id="ov-card-${p.id}">
-      <div class="ov-card-img">
-        <img src="${p.imageUrl || ''}" alt="${title}" loading="lazy">
-        <span class="ov-card-badge ${isVis ? 'visible-on' : ''}">
-          ${isVis ? 'Zichtbaar' : 'Verborgen'}
-        </span>
-      </div>
-      <div class="ov-card-body">
-        <div class="ov-card-title">${title}</div>
-        <div class="ov-card-meta">${metaParts.join(' · ')}</div>
-        <div class="ov-card-actions">
-          <button class="ov-visible-toggle ${isVis ? 'on' : ''}"
-            onclick="toggleVisible('${p.id}', this)"
-            title="${isVis ? 'Verbergen van website' : 'Tonen op website'}">
-            ${isVis ? '✓ Zichtbaar' : '+ Zichtbaar maken'}
-          </button>
-          <button class="btn btn-sm" onclick="openModal('${p.id}')">Bewerken</button>
-          <button class="btn btn-sm" onclick="toggleOvDetails('${p.id}')">Details</button>
+    <tr class="ov-row-main ${isVis ? '' : 'not-visible'}" id="ov-row-${p.id}"
+        onclick="toggleOvDetails('${p.id}')">
+      <td><img class="ov-thumb" src="${p.imageUrl || ''}" alt="" loading="lazy"></td>
+      <td>
+        <div class="ov-title">${title}</div>
+        <div class="ov-title-sub">${p.year || ''}</div>
+      </td>
+      <td>${p.size || '-'}</td>
+      <td class="ov-truncate" title="${technique}">${technique}</td>
+      <td class="ov-truncate" title="${story}">${trunc(story)}</td>
+      <td><span class="ov-vis-badge ${isVis ? 'on' : ''}">${isVis ? 'Zichtbaar' : 'Verborgen'}</span></td>
+      <td style="text-align:right;padding-right:1rem"><span class="ov-chevron">&#9654;</span></td>
+    </tr>
+    <tr class="ov-row-detail" id="ov-detail-${p.id}">
+      <td colspan="7">
+        <div class="ov-detail-inner">
+          <img class="ov-detail-img" src="${p.imageUrl || ''}" alt="" loading="lazy">
+          <div class="ov-df"><label>Jaar</label><span>${p.year || '-'}</span></div>
+          <div class="ov-df"><label>Prijs</label><span>${priceStr}</span></div>
+          <div class="ov-df"><label>Afmetingen</label><span>${p.size || '-'}</span></div>
+          <div class="ov-df"><label>Techniek</label><span>${technique}</span></div>
+          <div class="ov-df"><label>Status</label><span>${statusLabel(p.status)}</span></div>
+          <div class="ov-df"><label>Tags</label><span>${tags}</span></div>
+          <div class="ov-df"><label>Hero</label><span>${p.showInHero ? 'Ja' : 'Nee'}</span></div>
+          <div class="ov-df"><label>Uitgelicht</label><span>${p.showInFeatured ? 'Ja' : 'Nee'}</span></div>
+          ${storyNl ? `<div class="ov-story-block"><label>Verhaal NL</label><p>${storyNl}</p></div>` : ''}
+          ${storyEn ? `<div class="ov-story-block"><label>Verhaal EN</label><p>${storyEn}</p></div>` : ''}
+          <div class="ov-detail-actions">
+            <button class="ov-visible-toggle ${isVis ? 'on' : ''}"
+              onclick="event.stopPropagation(); toggleVisible('${p.id}', this)">
+              ${isVis ? '\u2713 Zichtbaar op website' : '+ Zichtbaar maken'}
+            </button>
+            <button class="btn btn-sm" onclick="event.stopPropagation(); openModal('${p.id}')">Bewerken</button>
+          </div>
         </div>
-      </div>
-      <div class="ov-details" id="ov-details-${p.id}">
-        <div class="ov-detail-row"><span class="ov-detail-label">Jaar</span><span>${p.year || '-'}</span></div>
-        <div class="ov-detail-row"><span class="ov-detail-label">Prijs</span><span>${p.price ? formatPrice(p.price) : '-'}</span></div>
-        <div class="ov-detail-row"><span class="ov-detail-label">Afmetingen</span><span>${p.size || '-'}</span></div>
-        <div class="ov-detail-row"><span class="ov-detail-label">Techniek</span><span>${p.technique || '-'}</span></div>
-        <div class="ov-detail-row"><span class="ov-detail-label">Status</span><span>${statusLabel(p.status)}</span></div>
-        ${story ? `
-        <div class="ov-story">
-          <div class="ov-story-label">Verhaal (${isEn ? 'EN' : 'NL'})</div>
-          <p>${story}</p>
-        </div>` : ''}
-      </div>
-    </div>`;
+      </td>
+    </tr>`;
   }).join('');
+
+  container.innerHTML = `
+    <table class="ov-table">
+      <thead>
+        <tr>
+          <th style="width:68px"></th>
+          <th>Titel</th>
+          <th>Afmetingen</th>
+          <th>Techniek</th>
+          <th>Omschrijving</th>
+          <th>Website</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function toggleOvDetails(id) {
+  // Accordion: close other open rows first
+  document.querySelectorAll('.ov-row-detail.open').forEach(el => {
+    if (el.id !== 'ov-detail-' + id) {
+      el.classList.remove('open');
+      const rid = el.id.replace('ov-detail-', '');
+      document.getElementById('ov-row-' + rid)?.classList.remove('open');
+    }
+  });
+  const detail = document.getElementById('ov-detail-' + id);
+  const row    = document.getElementById('ov-row-'    + id);
+  if (detail) detail.classList.toggle('open');
+  if (row)    row.classList.toggle('open');
 }
 
 async function toggleVisible(id, btn) {
   const painting = _allPaintings.find(p => p.id === id);
   if (!painting) return;
 
-  const newVal = painting.visible === false; // toggle: false -> true, true/undefined -> false
+  const newVal    = painting.visible === false; // false->true, true/undefined->false
   painting.visible = newVal;
 
   const { db, doc, updateDoc } = fb();
   await updateDoc(doc(db, 'paintings', id), { visible: newVal });
 
-  // Update card UI
-  const card = document.getElementById('ov-card-' + id);
-  if (card) {
-    card.classList.toggle('not-visible', !newVal);
-    const badge = card.querySelector('.ov-card-badge');
+  // Update main row styling and badge
+  const mainRow = document.getElementById('ov-row-' + id);
+  if (mainRow) {
+    mainRow.classList.toggle('not-visible', !newVal);
+    const badge = mainRow.querySelector('.ov-vis-badge');
     if (badge) {
       badge.textContent = newVal ? 'Zichtbaar' : 'Verborgen';
-      badge.classList.toggle('visible-on', newVal);
+      badge.classList.toggle('on', newVal);
     }
   }
-  btn.classList.toggle('on', newVal);
-  btn.textContent = newVal ? '✓ Zichtbaar' : '+ Zichtbaar maken';
 
-  // Update count
+  // Update toggle button in detail row
+  btn.classList.toggle('on', newVal);
+  btn.textContent = newVal ? '\u2713 Zichtbaar op website' : '+ Zichtbaar maken';
+
+  // Update count line
   const count = document.getElementById('overzicht-count');
-  if (count) count.textContent = `${_allPaintings.length} schilderijen totaal -  ${_allPaintings.filter(p => p.visible !== false).length} zichtbaar op website.`;
+  if (count) {
+    const vis = _allPaintings.filter(p => p.visible !== false).length;
+    count.textContent = `${_allPaintings.length} schilderijen totaal - ${vis} zichtbaar op website.`;
+  }
 
   showToast(newVal ? 'Schilderij zichtbaar op website.' : 'Schilderij verborgen van website.');
-
-  // Refresh SCHILDERIJEN table if it's been loaded
   renderPaintingsTable();
-}
-
-function toggleOvDetails(id) {
-  const el = document.getElementById('ov-details-' + id);
-  if (el) el.classList.toggle('open');
 }
 
 window.loadOverzicht    = loadOverzicht;

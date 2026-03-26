@@ -306,69 +306,118 @@ tr:hover td { background: rgba(245,240,232,0.5); }
 .empty-note { text-align: center; padding: 2.5rem; color: var(--muted); font-size: 0.9rem; }
 
 /* ─── OVERZICHT TAB ─── */
-.overzicht-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.25rem;
-  margin-top: 0.5rem;
+#overzicht-grid { margin-top: 0.5rem; }
+
+.ov-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.87rem;
 }
-.ov-card {
-  background: var(--canvas);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  transition: box-shadow 0.2s;
+.ov-table thead th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
 }
-.ov-card.not-visible {
-  opacity: 0.58;
-  border-style: dashed;
+.ov-row-main {
+  cursor: pointer;
+  transition: background 0.15s;
 }
-.ov-card:hover { box-shadow: var(--shadow); }
-.ov-card-img {
-  height: 220px;
+.ov-row-main:hover td { background: rgba(245,240,232,0.6); }
+.ov-row-main.open td  { background: var(--linen); border-bottom: none; }
+.ov-row-main.not-visible { opacity: 0.55; }
+
+.ov-row-main td {
+  padding: 0.7rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.ov-row-main.open td { border-bottom: none; }
+
+/* Thumbnail cell */
+.ov-thumb {
+  width: 54px; height: 54px;
+  object-fit: contain;
   background: var(--linen-dark);
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden; position: relative;
+  border-radius: var(--r);
+  display: block;
 }
-.ov-card-img img {
-  max-width: 100%; max-height: 100%;
-  width: auto; height: auto;
-  object-fit: contain; display: block;
+/* Title cell */
+.ov-title      { font-family: var(--ff-serif); font-size: 1rem; }
+.ov-title-sub  { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+/* Truncated text cells */
+.ov-truncate {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--muted);
+  font-size: 0.82rem;
 }
-.ov-card-badge {
-  position: absolute; top: 0.6rem; right: 0.6rem;
-  font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 0.2rem 0.55rem; border-radius: 20px;
+/* Visible badge */
+.ov-vis-badge {
+  font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 0.18rem 0.5rem; border-radius: 20px; white-space: nowrap;
   background: var(--linen-dark); color: var(--muted); border: 1px solid var(--border);
 }
-.ov-card-badge.visible-on { background: rgba(92,100,64,0.12); color: var(--olive); border-color: var(--olive-lt); }
-.ov-card-body { padding: 0.9rem 1rem; }
-.ov-card-title { font-family: var(--ff-serif); font-size: 1.1rem; margin-bottom: 0.2rem; }
-.ov-card-meta  { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; }
-.ov-card-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.ov-vis-badge.on { background: rgba(92,100,64,0.12); color: var(--olive); border-color: var(--olive-lt); }
+/* Chevron */
+.ov-chevron {
+  display: inline-block; transition: transform 0.2s;
+  font-size: 0.75rem; color: var(--muted);
+}
+.ov-row-main.open .ov-chevron { transform: rotate(90deg); }
+
+/* Expanded detail row */
+.ov-row-detail { display: none; }
+.ov-row-detail.open { display: table-row; }
+.ov-row-detail > td {
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--linen);
+}
+.ov-detail-inner {
+  padding: 1rem 1rem 1.1rem 1rem;
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr;
+  gap: 0.75rem 1.5rem;
+}
+.ov-detail-img {
+  grid-row: 1 / 4;
+  width: 80px; height: 100px;
+  object-fit: contain;
+  background: var(--linen-dark);
+  border-radius: var(--r);
+  display: block;
+}
+.ov-detail-fields { display: contents; }
+.ov-df { display: flex; flex-direction: column; gap: 0.1rem; }
+.ov-df label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.ov-df span  { font-size: 0.85rem; }
+.ov-story-block {
+  grid-column: 2 / -1;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+.ov-story-block label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 0.3rem; }
+.ov-story-block p  { font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
+.ov-detail-actions {
+  grid-column: 2 / -1;
+  display: flex; gap: 0.5rem; align-items: center; padding-top: 0.5rem;
+}
 .ov-visible-toggle {
-  display: flex; align-items: center; gap: 0.4rem;
-  font-size: 0.78rem; color: var(--muted); cursor: pointer;
-  padding: 0.3rem 0.6rem; border: 1px solid var(--border);
-  border-radius: var(--r); background: transparent; font-family: inherit;
-  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.75rem; color: var(--muted); cursor: pointer;
+  padding: 0.28rem 0.65rem;
+  border: 1px solid var(--border); border-radius: var(--r);
+  background: transparent; font-family: inherit; transition: all 0.2s;
 }
 .ov-visible-toggle:hover { border-color: var(--olive); color: var(--olive); }
 .ov-visible-toggle.on    { background: var(--olive); color: var(--linen); border-color: var(--olive); }
-
-/* Uitklapbare details */
-.ov-details {
-  display: none;
-  padding: 0.85rem 1rem 1rem;
-  border-top: 1px solid var(--border);
-  background: var(--linen);
-  font-size: 0.85rem;
-}
-.ov-details.open { display: block; }
-.ov-detail-row { display: flex; gap: 0.75rem; margin-bottom: 0.4rem; line-height: 1.5; }
-.ov-detail-label { color: var(--muted); flex-shrink: 0; min-width: 80px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
-.ov-story { margin-top: 0.75rem; color: var(--muted); line-height: 1.65; border-top: 1px solid var(--border); padding-top: 0.75rem; }
-.ov-story-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.3rem; }
 
 /* ─── OVER MIJ TAB ─── */
 .about-panel { max-width: 680px; }
