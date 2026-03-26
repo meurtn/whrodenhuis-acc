@@ -340,7 +340,7 @@ tr:hover td { background: rgba(245,240,232,0.5); }
 
 /* Thumbnail cell */
 .ov-thumb {
-  width: 54px; height: 54px;
+  width: 108px; height: 108px;
   object-fit: contain;
   background: var(--linen-dark);
   border-radius: var(--r);
@@ -367,28 +367,39 @@ tr:hover td { background: rgba(245,240,232,0.5); }
 .ov-vis-badge.on { background: rgba(92,100,64,0.12); color: var(--olive); border-color: var(--olive-lt); }
 /* Chevron */
 .ov-chevron {
-  display: inline-block; transition: transform 0.2s;
+  display: inline-block; transition: transform 0.28s ease;
   font-size: 0.75rem; color: var(--muted);
 }
 .ov-row-main.open .ov-chevron { transform: rotate(90deg); }
 
-/* Expanded detail row */
-.ov-row-detail { display: none; }
-.ov-row-detail.open { display: table-row; }
+/* Expanded detail row - slide animation via max-height */
+.ov-row-detail { display: table-row; }
 .ov-row-detail > td {
   padding: 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: none;
   background: var(--linen);
+  overflow: hidden;
+}
+.ov-row-detail .ov-slide-wrap {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ov-row-detail.open > td {
+  border-bottom: 1px solid var(--border);
+}
+.ov-row-detail.open .ov-slide-wrap {
+  max-height: 700px;
 }
 .ov-detail-inner {
-  padding: 1rem 1rem 1.1rem 1rem;
+  padding: 1rem 1rem 1.25rem 1rem;
   display: grid;
-  grid-template-columns: 80px 1fr 1fr;
+  grid-template-columns: 160px 1fr 1fr;
   gap: 0.75rem 1.5rem;
 }
 .ov-detail-img {
-  grid-row: 1 / 4;
-  width: 80px; height: 100px;
+  grid-row: 1 / 5;
+  width: 160px; height: 200px;
   object-fit: contain;
   background: var(--linen-dark);
   border-radius: var(--r);

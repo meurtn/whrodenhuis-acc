@@ -353,6 +353,7 @@ async function loadOverzicht() {
     </tr>
     <tr class="ov-row-detail" id="ov-detail-${p.id}">
       <td colspan="7">
+        <div class="ov-slide-wrap">
         <div class="ov-detail-inner">
           <img class="ov-detail-img" src="${p.imageUrl || ''}" alt="" loading="lazy">
           <div class="ov-df"><label>Jaar</label><span>${p.year || '-'}</span></div>
@@ -372,6 +373,7 @@ async function loadOverzicht() {
             </button>
             <button class="btn btn-sm" onclick="event.stopPropagation(); openModal('${p.id}')">Bewerken</button>
           </div>
+        </div>
         </div>
       </td>
     </tr>`;
