@@ -190,7 +190,7 @@ async function doSearch(query) {
       <img class="search-result-thumb" src="${p.imageUrl || ''}" alt="${titleFor(p)}">
       <div class="search-result-info">
         <h4>${titleFor(p)}</h4>
-        <p>${p.year || ''} · ${p.technique || ''} · ${(p.tags || []).slice(0, 3).join(', ')}</p>
+        <p>${p.year || ''} · ${(lang === 'en' ? (p.techniqueEn || p.technique) : p.technique) || ''} · ${(p.tags || []).slice(0, 3).join(', ')}</p>
       </div>
     </div>`).join('');
 }
@@ -427,7 +427,7 @@ function _renderLightbox(p) {
 
   document.getElementById('lb-specs').innerHTML = [
     ['lb.size',      p.size],
-    ['lb.technique', p.technique],
+    ['lb.technique', lang === 'en' ? (p.techniqueEn || p.technique) : p.technique],
     ['lb.year',      p.year],
     ['lb.status',    t(p.status || 'available')]
   ]

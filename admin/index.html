@@ -338,31 +338,37 @@ tr:hover td { background: rgba(245,240,232,0.5); }
 }
 .ov-row-main.open td { border-bottom: none; }
 
-/* Thumbnail cell - fixed square, fills fully */
+/* Thumbnail cell - contain so painting shows in correct ratio */
 .ov-thumb-wrap {
   width: 108px; height: 108px;
   background: var(--linen-dark);
   border-radius: var(--r);
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  display: block;
 }
 .ov-thumb {
-  width: 108px; height: 108px;
-  object-fit: cover;
+  max-width: 108px; max-height: 108px;
+  width: auto; height: auto;
+  object-fit: contain;
   display: block;
 }
 /* Title cell */
 .ov-title      { font-family: var(--ff-serif); font-size: 1rem; }
 .ov-title-sub  { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
-/* Truncated text cells */
+/* Truncated text cells - show up to 3 lines */
 .ov-truncate {
-  max-width: 200px;
-  white-space: nowrap;
+  max-width: 260px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
   color: var(--muted);
   font-size: 0.82rem;
+  line-height: 1.5;
+  white-space: normal;
 }
 /* Visible badge */
 .ov-vis-badge {
@@ -383,8 +389,9 @@ tr:hover td { background: rgba(245,240,232,0.5); }
 .ov-row-detail > td {
   padding: 0;
   border-bottom: none;
-  background: var(--linen);
+  background: var(--canvas);
   overflow: hidden;
+  border-left: 3px solid var(--terra);
 }
 .ov-row-detail .ov-slide-wrap {
   max-height: 0;
@@ -393,9 +400,14 @@ tr:hover td { background: rgba(245,240,232,0.5); }
 }
 .ov-row-detail.open > td {
   border-bottom: 1px solid var(--border);
+  background: rgba(160, 82, 45, 0.04);
 }
 .ov-row-detail.open .ov-slide-wrap {
   max-height: 700px;
+}
+/* Keep main row left-border accent when open */
+.ov-row-main.open td:first-child {
+  border-left: 3px solid var(--terra);
 }
 .ov-detail-inner {
   padding: 1.1rem 1.1rem 1.25rem 1.1rem;
@@ -737,9 +749,13 @@ tr:hover td { background: rgba(245,240,232,0.5); }
         <input class="form-control" type="text" id="pm-size" placeholder="60 x 80 cm">
       </div>
       <div class="form-group">
-        <label>Techniek</label>
+        <label>Techniek (NL)</label>
         <input class="form-control" type="text" id="pm-technique" placeholder="Olieverf op linnen">
       </div>
+    </div>
+    <div class="form-group">
+      <label>Technique (EN)</label>
+      <input class="form-control" type="text" id="pm-technique-en" placeholder="Oil on linen">
     </div>
 
     <div class="form-group">

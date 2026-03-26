@@ -331,7 +331,9 @@ async function loadOverzicht() {
     const title     = isEn ? (p.titleEn || p.titleNl || '-') : (p.titleNl || '-');
     const story     = isEn ? (p.storyEn || p.storyNl || '') : (p.storyNl || '');
     const isVis     = p.visible !== false;
-    const technique = p.technique || '-';
+    const technique = isEn
+      ? (p.techniqueEn || p.technique || '-')
+      : (p.technique   || '-');
     const priceStr  = p.price ? formatPrice(p.price) : '-';
     const tags      = (p.tags || []).join(', ') || '-';
 
@@ -488,7 +490,7 @@ function closeModal() {
 
 function _clearModal() {
   ['pm-id','pm-title-nl','pm-title-en','pm-year','pm-price',
-   'pm-size','pm-technique','pm-story-nl','pm-story-en','pm-tags']
+   'pm-size','pm-technique','pm-technique-en','pm-story-nl','pm-story-en','pm-tags']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('pm-status').value          = 'available';
   document.getElementById('pm-show-hero').checked     = false;
@@ -510,7 +512,8 @@ async function _loadIntoModal(id) {
   document.getElementById('pm-year').value       = p.year      || '';
   document.getElementById('pm-price').value      = p.price     || '';
   document.getElementById('pm-size').value       = p.size      || '';
-  document.getElementById('pm-technique').value  = p.technique || '';
+  document.getElementById('pm-technique').value    = p.technique   || '';
+  document.getElementById('pm-technique-en').value = p.techniqueEn || '';
   document.getElementById('pm-story-nl').value   = p.storyNl   || '';
   document.getElementById('pm-story-en').value   = p.storyEn   || '';
   document.getElementById('pm-tags').value       = (p.tags || []).join(', ');
@@ -593,6 +596,7 @@ async function savePainting() {
       price:          Number(document.getElementById('pm-price').value) || 0,
       size:           document.getElementById('pm-size').value.trim(),
       technique:      document.getElementById('pm-technique').value.trim(),
+      techniqueEn:    document.getElementById('pm-technique-en').value.trim(),
       storyNl:        document.getElementById('pm-story-nl').value.trim(),
       storyEn:        document.getElementById('pm-story-en').value.trim(),
       tags,
