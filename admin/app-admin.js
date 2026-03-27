@@ -185,13 +185,14 @@ async function uploadToCloudinary(file, onProgress) {
   const fd = new FormData();
   fd.append('file',          file);
   fd.append('upload_preset', CLOUDINARY.uploadPreset);
-  fd.append('folder',        CLOUDINARY.folder);
+  // Note: do NOT append folder separately when also setting public_id -
+  // some Cloudinary preset configs reject having both. The preset itself
+  // already targets the 'paintings' folder.
 
-  // Add a unique public_id using the original filename + timestamp
-  // This prevents Cloudinary from overwriting an existing file with the same name
+  // Unique public_id with folder prefix + timestamp to prevent overwrites
   const ext      = file.name.lastIndexOf('.') > 0 ? file.name.slice(0, file.name.lastIndexOf('.')) : file.name;
   const safeName = ext.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 60);
-  fd.append('public_id', `${safeName}_${Date.now()}`);
+  fd.append('public_id', `${CLOUDINARY.folder}/${safeName}_${Date.now()}`);
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -208,7 +209,13 @@ async function uploadToCloudinary(file, onProgress) {
         const res = JSON.parse(xhr.responseText);
         resolve({ url: res.secure_url, publicId: res.public_id });
       } else {
-        reject(new Error('Cloudinary upload mislukt: ' + xhr.status));
+        // Parse Cloudinary's error body for a meaningful message
+        try {
+          const errBody = JSON.parse(xhr.responseText);
+          reject(new Error('Cloudinary: ' + (errBody?.error?.message || xhr.status)));
+        } catch {
+          reject(new Error('Cloudinary upload mislukt: ' + xhr.status));
+        }
       }
     };
 
