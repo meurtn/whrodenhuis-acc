@@ -350,7 +350,7 @@ tr:hover td { background: rgba(245,240,232,0.5); }
 }
 .ov-row-main:hover td { background: rgba(245,240,232,0.6); }
 .ov-row-main.open td  { background: var(--linen); border-bottom: none; }
-.ov-row-main.not-visible { opacity: 0.55; }
+.ov-row-main.not-visible { opacity: 1; }
 
 .ov-row-main td {
   padding: 0.7rem 0.75rem;
@@ -396,9 +396,11 @@ tr:hover td { background: rgba(245,240,232,0.5); }
 .ov-vis-badge {
   font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
   padding: 0.18rem 0.5rem; border-radius: 20px; white-space: nowrap;
-  background: var(--linen-dark); color: var(--muted); border: 1px solid var(--border);
+  /* Verborgen = paars */
+  background: rgba(120, 80, 160, 0.1); color: #7850a0; border: 1px solid rgba(120, 80, 160, 0.35);
 }
-.ov-vis-badge.on { background: rgba(92,100,64,0.12); color: var(--olive); border-color: var(--olive-lt); }
+/* Zichtbaar = groen */
+.ov-vis-badge.on { background: rgba(34, 120, 60, 0.1); color: #22783c; border-color: rgba(34, 120, 60, 0.4); }
 /* Chevron */
 .ov-chevron {
   display: inline-block; transition: transform 0.28s ease;

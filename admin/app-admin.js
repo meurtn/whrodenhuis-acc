@@ -646,8 +646,10 @@ async function savePainting() {
     }
 
     closeModal();
-    _allPaintings = []; // invalidate cache so Overzicht reloads from Firestore
+    _allPaintings = [];
     loadPaintings();
+    // Auto-refresh Overzicht so no manual VERNIEUWEN needed
+    loadOverzicht();
 
   } catch (e) {
     showToast('Fout: ' + e.message, 'err');
@@ -667,6 +669,7 @@ async function deletePainting() {
   closeModal();
   _allPaintings = [];
   loadPaintings();
+  loadOverzicht();
 }
 
 window.openModal      = openModal;
