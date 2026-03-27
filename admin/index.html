@@ -193,10 +193,11 @@ h1,h2,h3,h4 { font-family: var(--ff-serif); font-weight: 400; line-height: 1.2; 
   color: var(--linen);
 }
 
-/* ─── OVERZICHT STICKY HEADER ─── */
+/* ─── PAINTINGS + OVERZICHT STICKY HEADERS ─── */
+.paintings-sticky-header,
 .overzicht-sticky-header {
   position: sticky;
-  top: 56px; /* fallback; JS updates this dynamically */
+  top: 56px;
   z-index: 50;
   background: var(--linen);
   padding-top: 1.5rem;
@@ -204,10 +205,18 @@ h1,h2,h3,h4 { font-family: var(--ff-serif); font-weight: 400; line-height: 1.2; 
   margin-bottom: 0;
   border-bottom: 1px solid var(--border);
 }
+/* Sticky thead for schilderijen table */
+.table-wrap thead th {
+  position: sticky;
+  top: calc(56px + 72px); /* header + toolbar approx */
+  z-index: 40;
+  background: var(--canvas);
+  box-shadow: 0 1px 0 var(--border);
+}
 /* Sticky thead in the dynamically rendered ov-table */
 #overzicht-grid .ov-table thead th {
   position: sticky;
-  top: calc(56px + 90px); /* header + toolbar approx height */
+  top: calc(56px + 90px);
   z-index: 40;
   background: var(--linen);
   box-shadow: 0 1px 0 var(--border);
@@ -582,12 +591,9 @@ tr:hover td { background: rgba(245,240,232,0.5); }
 
     <!-- ── Tab: Schilderijen ── -->
     <div class="tab-panel active" id="tab-paintings">
-      <div class="panel-toolbar">
+      <div class="panel-toolbar paintings-sticky-header">
         <h2>Schilderijen</h2>
-        <div style="display:flex;gap:0.75rem;align-items:center">
-          <button class="btn" onclick="loadPaintings()">↻ Vernieuwen</button>
-          <button class="btn btn-solid" onclick="openModal()">+ Nieuw schilderij</button>
-        </div>
+        <button class="btn" onclick="loadPaintings()">&#8635; Vernieuwen</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -595,7 +601,7 @@ tr:hover td { background: rgba(245,240,232,0.5); }
             <tr>
               <th>Afb.</th>
               <th class="sortable" onclick="sortPaintingsBy('title')" id="sort-title">Titel <span class="sort-arrow"></span></th>
-              <th class="sortable" onclick="sortPaintingsBy('year')"  id="sort-year">Jaar <span class="sort-arrow">↓</span></th>
+              <th class="sortable" onclick="sortPaintingsBy('year')"  id="sort-year">Jaar <span class="sort-arrow">&#8595;</span></th>
               <th class="sortable" onclick="sortPaintingsBy('price')" id="sort-price">Prijs <span class="sort-arrow"></span></th>
               <th class="sortable" onclick="sortPaintingsBy('status')" id="sort-status">Status <span class="sort-arrow"></span></th>
               <th class="center">Hero</th>
@@ -604,7 +610,7 @@ tr:hover td { background: rgba(245,240,232,0.5); }
             </tr>
           </thead>
           <tbody id="paintings-body">
-            <tr><td colspan="7" class="loading-cell">Laden…</td></tr>
+            <tr><td colspan="8" class="loading-cell">Laden&hellip;</td></tr>
           </tbody>
         </table>
       </div>

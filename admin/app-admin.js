@@ -290,10 +290,21 @@ function renderPaintingsTable() {
       <td>${p.year || '-'}</td>
       <td>${p.price ? formatPrice(p.price) : '-'}</td>
       <td><span class="status-badge status-${p.status || 'available'}">${statusLabel(p.status)}</span></td>
-      <td class="center">${p.showInHero     ? '✓' : ''}</td>
-      <td class="center">${p.showInFeatured ? '✓' : ''}</td>
+      <td class="center">${p.showInHero     ? '&#10003;' : ''}</td>
+      <td class="center">${p.showInFeatured ? '&#10003;' : ''}</td>
       <td><button class="btn btn-sm" onclick="openModal('${p.id}')">Bewerken</button></td>
     </tr>`).join('');
+
+  // Set sticky thead offset dynamically
+  requestAnimationFrame(() => {
+    const dashH    = document.querySelector('.dashboard-header')?.offsetHeight || 56;
+    const toolbar  = document.querySelector('.paintings-sticky-header');
+    if (toolbar) toolbar.style.top = dashH + 'px';
+    const toolbarH = toolbar?.offsetHeight || 72;
+    document.querySelectorAll('.table-wrap thead th').forEach(th => {
+      th.style.top = (dashH + toolbarH) + 'px';
+    });
+  });
 }
 
 function statusLabel(s) {
@@ -361,7 +372,9 @@ async function loadOverzicht() {
       <td colspan="7">
         <div class="ov-slide-wrap">
         <div class="ov-detail-inner">
-          <img class="ov-detail-img" src="${p.imageUrl || ''}" alt="" loading="lazy">
+          <img class="ov-detail-img" src="${p.imageUrl || ''}" alt=""
+            loading="lazy" style="cursor:zoom-in"
+            onclick="openImgFullscreen('${p.imageUrl || ''}', event)">
           <div class="ov-right-col">
           ${story ? `<div class="ov-story-block"><label>Verhaal</label><p>${story}</p></div>` : ''}
           ${technique !== '-' ? `<div class="ov-technique-block"><label>Techniek</label><span>${technique}</span></div>` : ''}
@@ -471,6 +484,39 @@ async function toggleVisible(id, btn) {
 window.loadOverzicht    = loadOverzicht;
 window.toggleVisible    = toggleVisible;
 window.toggleOvDetails  = toggleOvDetails;
+
+// ─── Fullscreen image viewer (for overzicht detail thumbnail) ───
+function openImgFullscreen(url, e) {
+  if (e) e.stopPropagation();
+  if (!url) return;
+
+  // Remove any existing overlay
+  document.getElementById('ov-img-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'ov-img-overlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9999;
+    background:rgba(14,12,9,0.92);
+    display:flex;align-items:center;justify-content:center;
+    cursor:zoom-out;
+  `;
+  const img = document.createElement('img');
+  img.src = url;
+  img.style.cssText = `
+    max-width:92vw;max-height:92vh;
+    object-fit:contain;
+    border-radius:4px;
+    box-shadow:0 24px 80px rgba(0,0,0,0.6);
+  `;
+  overlay.appendChild(img);
+  overlay.addEventListener('click', () => overlay.remove());
+  document.addEventListener('keydown', function esc(e) {
+    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); }
+  });
+  document.body.appendChild(overlay);
+}
+window.openImgFullscreen = openImgFullscreen;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SCHILDERIJ MODAL - toevoegen / bewerken
