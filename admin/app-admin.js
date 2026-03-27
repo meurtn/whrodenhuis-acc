@@ -398,6 +398,15 @@ async function loadOverzicht() {
       </thead>
       <tbody>${rows}</tbody>
     </table>`;
+
+  // Dynamically set thead sticky offset = dashboard header + overzicht toolbar
+  requestAnimationFrame(() => {
+    const dashH    = document.querySelector('.dashboard-header')?.offsetHeight || 56;
+    const toolbarH = document.querySelector('.overzicht-sticky-header')?.offsetHeight || 90;
+    document.querySelectorAll('#overzicht-grid .ov-table thead th').forEach(th => {
+      th.style.top = (dashH + toolbarH) + 'px';
+    });
+  });
 }
 
 function toggleOvDetails(id) {
@@ -497,6 +506,9 @@ function _clearModal() {
   document.getElementById('pm-show-featured').checked = false;
   document.getElementById('pm-visible').checked       = false;
   document.getElementById('pm-image').value           = '';
+  // Explicitly clear image state so a new painting never inherits a previous one's photo
+  _currentImageUrl = null;
+  _currentPublicId  = null;
   _setPreview(null);
   _resetProgress();
 }
@@ -621,6 +633,7 @@ async function savePainting() {
     }
 
     closeModal();
+    _allPaintings = []; // invalidate cache so Overzicht reloads from Firestore
     loadPaintings();
 
   } catch (e) {
@@ -639,6 +652,7 @@ async function deletePainting() {
   await deleteDoc(doc(db, 'paintings', _modalPaintingId));
   showToast('Schilderij verwijderd.');
   closeModal();
+  _allPaintings = [];
   loadPaintings();
 }
 
