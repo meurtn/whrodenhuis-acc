@@ -518,8 +518,21 @@ function _clearModal() {
   document.getElementById('pm-show-hero').checked     = false;
   document.getElementById('pm-show-featured').checked = false;
   document.getElementById('pm-visible').checked       = false;
-  document.getElementById('pm-image').value           = '';
-  // Explicitly clear image state so a new painting never inherits a previous one's photo
+
+  // Replace the file input with a fresh clone to guarantee FileList is empty.
+  // Simply setting .value = '' is not reliable across all browsers.
+  const oldInput = document.getElementById('pm-image');
+  if (oldInput) {
+    const newInput = oldInput.cloneNode(true);
+    oldInput.parentNode.replaceChild(newInput, oldInput);
+    // Re-attach the change listener on the new element
+    newInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) _setPreview(URL.createObjectURL(file));
+    });
+  }
+
+  // Explicitly clear image state
   _currentImageUrl = null;
   _currentPublicId  = null;
   _setPreview(null);
@@ -551,6 +564,17 @@ async function _loadIntoModal(id) {
   _currentImageUrl = p.imageUrl  || null;
   _currentPublicId  = p.publicId || null;
   _setPreview(_currentImageUrl);
+
+  // Replace file input to clear any stale file selection from a previous modal session
+  const oldInput = document.getElementById('pm-image');
+  if (oldInput) {
+    const newInput = oldInput.cloneNode(true);
+    oldInput.parentNode.replaceChild(newInput, oldInput);
+    newInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) _setPreview(URL.createObjectURL(file));
+    });
+  }
 }
 
 function _setPreview(url) {
@@ -565,11 +589,7 @@ function _setPreview(url) {
   }
 }
 
-// Live preview bij bestandsselectie
-document.getElementById('pm-image')?.addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (file) _setPreview(URL.createObjectURL(file));
-});
+// Note: pm-image change listener is attached dynamically in _clearModal and _loadIntoModal
 
 function _resetProgress() {
   const bar = document.getElementById('upload-progress');
@@ -589,12 +609,12 @@ async function savePainting() {
 
   try {
     const { db, doc, addDoc, updateDoc, collection, serverTimestamp } = fb();
+    // Only upload if a new file was actually selected
     const fileInput = document.getElementById('pm-image');
     let imageUrl    = _currentImageUrl;
     let publicId    = _currentPublicId;
 
-    // Upload naar Cloudinary als er een nieuw bestand is gekozen
-    if (fileInput.files[0]) {
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
       showToast('Afbeelding uploaden…', 'info');
       const result = await uploadToCloudinary(fileInput.files[0], pct => _setProgress(pct));
       imageUrl = result.url;
