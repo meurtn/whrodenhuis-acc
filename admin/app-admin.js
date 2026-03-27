@@ -187,6 +187,12 @@ async function uploadToCloudinary(file, onProgress) {
   fd.append('upload_preset', CLOUDINARY.uploadPreset);
   fd.append('folder',        CLOUDINARY.folder);
 
+  // Add a unique public_id using the original filename + timestamp
+  // This prevents Cloudinary from overwriting an existing file with the same name
+  const ext      = file.name.lastIndexOf('.') > 0 ? file.name.slice(0, file.name.lastIndexOf('.')) : file.name;
+  const safeName = ext.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 60);
+  fd.append('public_id', `${safeName}_${Date.now()}`);
+
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', CLOUDINARY.uploadUrl);
@@ -399,10 +405,12 @@ async function loadOverzicht() {
       <tbody>${rows}</tbody>
     </table>`;
 
-  // Dynamically set thead sticky offset = dashboard header + overzicht toolbar
+  // Dynamically set sticky offsets based on actual header height
   requestAnimationFrame(() => {
     const dashH    = document.querySelector('.dashboard-header')?.offsetHeight || 56;
-    const toolbarH = document.querySelector('.overzicht-sticky-header')?.offsetHeight || 90;
+    const toolbar  = document.querySelector('.overzicht-sticky-header');
+    if (toolbar) toolbar.style.top = dashH + 'px';
+    const toolbarH = toolbar?.offsetHeight || 90;
     document.querySelectorAll('#overzicht-grid .ov-table thead th').forEach(th => {
       th.style.top = (dashH + toolbarH) + 'px';
     });
@@ -478,6 +486,11 @@ function openModal(id) {
   const deleteBtn  = document.getElementById('btn-delete');
 
   modal.classList.add('open');
+  // Always scroll modal content to top
+  requestAnimationFrame(() => {
+    const modalEl = modal.querySelector('.modal');
+    if (modalEl) modalEl.scrollTop = 0;
+  });
 
   if (id) {
     title.textContent      = 'Schilderij bewerken';

@@ -457,6 +457,9 @@ function _renderLightbox(p) {
   // Scroll info panel to top
   const scroll = document.querySelector('.lightbox-panel-scroll');
   if (scroll) scroll.scrollTop = 0;
+  // Also reset outer lightbox container (for mobile stacked layout)
+  const lbInner = document.querySelector('.lightbox-inner');
+  if (lbInner) lbInner.scrollTop = 0;
 
   loadReviews(p.id);
 }

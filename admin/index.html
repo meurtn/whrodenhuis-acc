@@ -147,9 +147,11 @@ h1,h2,h3,h4 { font-family: var(--ff-serif); font-weight: 400; line-height: 1.2; 
 #screen-dashboard { display: none; }
 .dashboard-header {
   background: var(--olive-dk); color: var(--linen);
-  padding: 0 2rem; height: 56px;
-  display: flex; align-items: center; gap: 2rem;
+  padding: 0 2rem; min-height: 56px;
+  display: flex; align-items: center; gap: 1.25rem;
   position: sticky; top: 0; z-index: 100;
+  flex-wrap: wrap;
+  overflow: visible;
 }
 .dashboard-brand {
   font-family: var(--ff-serif); font-size: 1.15rem; flex: 1;
@@ -169,7 +171,8 @@ h1,h2,h3,h4 { font-family: var(--ff-serif); font-weight: 400; line-height: 1.2; 
 .user-chip {
   font-size: 0.74rem; color: rgba(245,240,232,0.55);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  max-width: 160px;
+  max-width: 140px;
+  background: none;
 }
 .admin-lang-wrap {
   display: flex; gap: 2px;
@@ -193,7 +196,7 @@ h1,h2,h3,h4 { font-family: var(--ff-serif); font-weight: 400; line-height: 1.2; 
 /* ─── OVERZICHT STICKY HEADER ─── */
 .overzicht-sticky-header {
   position: sticky;
-  top: 56px; /* dashboard-header height */
+  top: 56px; /* fallback; JS updates this dynamically */
   z-index: 50;
   background: var(--canvas);
   padding-top: 1.5rem;
