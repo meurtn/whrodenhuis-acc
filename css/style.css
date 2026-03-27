@@ -612,9 +612,19 @@ h4 { font-size: 1.15rem; }
   padding-top: 3.5rem;
 }
 
-.lb-title-block    { margin-bottom: 1.5rem; }
-.lb-title-block h2 { font-size: 1.65rem; line-height: 1.2; margin-bottom: 0.5rem; }
-.lightbox-price    { font-family: var(--ff-serif); font-size: 1.4rem; color: var(--terra); }
+.lb-title-block    { margin-bottom: 0.5rem; }
+.lb-title-block h2 { font-size: 1.65rem; line-height: 1.2; margin-bottom: 0; }
+.lb-technique-block {
+  margin: 1.1rem 0 0;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--border);
+}
+.lb-technique-label {
+  display: block;
+  font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 0.3rem;
+}
+.lb-technique-value { font-size: 0.95rem; color: var(--ink); }
 
 .lightbox-specs  { margin-bottom: 1.25rem; }
 .lightbox-spec {

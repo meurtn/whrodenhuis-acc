@@ -419,17 +419,30 @@ function _renderLightbox(p) {
   document.getElementById('lb-img').alt    = titleFor(p);
   document.getElementById('lb-title').textContent = titleFor(p);
 
-  document.getElementById('lb-price').textContent = p.status === 'sold'
-    ? t('sold') : (p.price ? formatPrice(p.price) : '');
-
+  // Story (no label)
   document.getElementById('lb-story').textContent = lang === 'nl'
     ? (p.storyNl || '') : (p.storyEn || p.storyNl || '');
 
+  // Technique block with label
+  const technique = lang === 'en' ? (p.techniqueEn || p.technique || '') : (p.technique || '');
+  const techBlock = document.getElementById('lb-technique-block');
+  const techLabel = document.getElementById('lb-technique-label');
+  const techValue = document.getElementById('lb-technique-value');
+  if (technique && techBlock) {
+    techLabel.textContent = lang === 'nl' ? 'Techniek' : 'Technique';
+    techValue.textContent = technique;
+    techBlock.style.display = 'block';
+  } else if (techBlock) {
+    techBlock.style.display = 'none';
+  }
+
+  // Specs: price, size, year, status (no technique here)
+  const priceVal = p.status === 'sold' ? t('sold') : (p.price ? formatPrice(p.price) : '');
   document.getElementById('lb-specs').innerHTML = [
-    ['lb.size',      p.size],
-    ['lb.technique', lang === 'en' ? (p.techniqueEn || p.technique) : p.technique],
-    ['lb.year',      p.year],
-    ['lb.status',    t(p.status || 'available')]
+    ['lb.price',  priceVal],
+    ['lb.size',   p.size],
+    ['lb.year',   p.year],
+    ['lb.status', t(p.status || 'available')]
   ]
     .filter(([, v]) => v)
     .map(([k, v]) => `
@@ -437,9 +450,6 @@ function _renderLightbox(p) {
         <span class="label">${t(k)}</span>
         <span>${v}</span>
       </div>`).join('');
-
-  document.getElementById('lb-tags').innerHTML =
-    (p.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('');
 
   document.getElementById('lb-actions').innerHTML = p.status !== 'sold'
     ? `<button class="btn btn-solid" onclick="addToCart(currentPainting)">${t('btn.addcart')}</button>
@@ -454,10 +464,9 @@ function _renderLightbox(p) {
   if (rvName) rvName.value = '';
   if (rvText) rvText.value = '';
 
-  // Scroll info panel to top
+  // Scroll to top
   const scroll = document.querySelector('.lightbox-panel-scroll');
   if (scroll) scroll.scrollTop = 0;
-  // Also reset outer lightbox container (for mobile stacked layout)
   const lbInner = document.querySelector('.lightbox-inner');
   if (lbInner) lbInner.scrollTop = 0;
 

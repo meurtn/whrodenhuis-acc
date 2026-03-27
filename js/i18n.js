@@ -137,6 +137,7 @@ export const translations = {
     'reserved':  'Gereserveerd',
 
     // Lightbox specificaties
+    'lb.price':     'Prijs',
     'lb.size':      'Afmetingen',
     'lb.technique': 'Techniek',
     'lb.year':      'Jaar',
@@ -276,6 +277,7 @@ export const translations = {
     'reserved':  'Reserved',
 
     // Lightbox specs
+    'lb.price':     'Price',
     'lb.size':      'Dimensions',
     'lb.technique': 'Technique',
     'lb.year':      'Year',

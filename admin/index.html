@@ -208,9 +208,9 @@ h1,h2,h3,h4 { font-family: var(--ff-serif); font-weight: 400; line-height: 1.2; 
 /* Sticky thead for schilderijen table */
 .table-wrap thead th {
   position: sticky;
-  top: calc(56px + 72px); /* header + toolbar approx */
+  top: calc(56px + 72px); /* updated dynamically by JS */
   z-index: 40;
-  background: var(--canvas);
+  background: var(--linen);
   box-shadow: 0 1px 0 var(--border);
 }
 /* Sticky thead in the dynamically rendered ov-table */
@@ -231,8 +231,9 @@ h1,h2,h3,h4 { font-family: var(--ff-serif); font-weight: 400; line-height: 1.2; 
 .panel-toolbar h2 { font-size: 1.6rem; }
 
 /* ─── TABEL ─── */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+/* overflow-x: clip (not auto/scroll) allows sticky thead to work */
+.table-wrap { overflow-x: clip; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 700px; }
 th {
   text-align: left; padding: 0.55rem 0.75rem;
   font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
