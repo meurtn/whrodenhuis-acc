@@ -519,17 +519,20 @@ function _clearModal() {
   document.getElementById('pm-show-featured').checked = false;
   document.getElementById('pm-visible').checked       = false;
 
-  // Replace the file input with a fresh clone to guarantee FileList is empty.
-  // Simply setting .value = '' is not reliable across all browsers.
+  // Create a brand-new file input to guarantee empty FileList AND no stale filename display.
+  // cloneNode would copy the displayed filename from the previous session.
   const oldInput = document.getElementById('pm-image');
   if (oldInput) {
-    const newInput = oldInput.cloneNode(true);
-    oldInput.parentNode.replaceChild(newInput, oldInput);
-    // Re-attach the change listener on the new element
+    const newInput = document.createElement('input');
+    newInput.type   = 'file';
+    newInput.id     = 'pm-image';
+    newInput.accept = 'image/*';
+    newInput.style.cssText = 'font-size:0.88rem;padding:0.3rem 0';
     newInput.addEventListener('change', e => {
       const file = e.target.files[0];
       if (file) _setPreview(URL.createObjectURL(file));
     });
+    oldInput.parentNode.replaceChild(newInput, oldInput);
   }
 
   // Explicitly clear image state
@@ -565,15 +568,19 @@ async function _loadIntoModal(id) {
   _currentPublicId  = p.publicId || null;
   _setPreview(_currentImageUrl);
 
-  // Replace file input to clear any stale file selection from a previous modal session
+  // Create a brand-new file input to clear any stale filename/FileList from previous session
   const oldInput = document.getElementById('pm-image');
   if (oldInput) {
-    const newInput = oldInput.cloneNode(true);
-    oldInput.parentNode.replaceChild(newInput, oldInput);
+    const newInput = document.createElement('input');
+    newInput.type   = 'file';
+    newInput.id     = 'pm-image';
+    newInput.accept = 'image/*';
+    newInput.style.cssText = 'font-size:0.88rem;padding:0.3rem 0';
     newInput.addEventListener('change', e => {
       const file = e.target.files[0];
       if (file) _setPreview(URL.createObjectURL(file));
     });
+    oldInput.parentNode.replaceChild(newInput, oldInput);
   }
 }
 
